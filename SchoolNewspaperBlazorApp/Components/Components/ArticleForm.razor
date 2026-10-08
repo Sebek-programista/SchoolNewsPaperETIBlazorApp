@@ -1,8 +1,8 @@
 ﻿@using SchoolNewspaperBlazorApp.Data
 @using SchoolNewspaperBlazorApp.Interfaces.Service
 @inject IArticleService articleService
+@inject IFileService fileService
 
-    
 <div class="add-article-form">
     <h1>Dodaj artykul</h1>
     @if(previewImage != null)
@@ -29,11 +29,8 @@
     private async Task ChoosePhoto(InputFileChangeEventArgs e)
     {
         IBrowserFile file = e.File;
-        using var stream = file.OpenReadStream(5 * 1024 * 1024);
-        using var memoryStream = new MemoryStream();
-        await stream.CopyToAsync(memoryStream);
-        var bytes = memoryStream.ToArray();
-        previewImage = $"data:{file.ContentType}:base64,{Convert.ToBase64String(bytes)}";
+        previewImage = await fileService.GetPreviewAsync(file);    
+        
     }
 
     private async Task AddArticle()
