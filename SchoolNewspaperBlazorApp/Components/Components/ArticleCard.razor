@@ -1,6 +1,6 @@
 ﻿@using SchoolNewspaperBlazorApp.Data
 @using SchoolNewspaperBlazorApp.Interfaces.Service
-@foreach (var article in articles)
+@foreach (var article in Articles)
 {
     @if (permissions == true)
     {
@@ -30,7 +30,8 @@
 }
 
 @code {
-
+    [Parameter]
+    public List<Article> Articles { get; set; } = new();
     [Parameter]
     public bool permissions { get; set; }
     [Inject]
@@ -39,10 +40,10 @@
     public async Task RemoveArticleByIdAsync(int id)
     {
         await articleService.RemoveArticleByIdAsync(id);
-        Article? article = articles.FirstOrDefault(a => a.Id == id);
+        Article? article = Articles.FirstOrDefault(a => a.Id == id);
         if (article != null)
         {
-            articles.Remove(article);
+            Articles.Remove(article);
         }
     }
 }
