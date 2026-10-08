@@ -7,7 +7,7 @@ namespace SchoolNewspaperBlazorApp.Data
         public NewspaperDbContext(DbContextOptions<NewspaperDbContext> options)
             : base(options) {}
         public DbSet<Article> Articles { get; set; }
-        public DbSet<File> Files { get; set; }
+        public DbSet<MediaFile> Files { get; set; }
 
         
 

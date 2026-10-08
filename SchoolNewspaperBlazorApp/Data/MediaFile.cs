@@ -1,6 +1,6 @@
 ﻿namespace SchoolNewspaperBlazorApp.Data
 {
-    public class File
+    public class MediaFile
     {
         public int Id { get; set; }
         public required string FileType { get; set; }

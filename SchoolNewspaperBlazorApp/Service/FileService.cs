@@ -1,10 +1,18 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
+using SchoolNewspaperBlazorApp.Data;
 using SchoolNewspaperBlazorApp.Interfaces.Service;
+using SchoolNewspaperBlazorApp.Interfaces.Repository;
+using System.Net.Mail;
 
 namespace SchoolNewspaperBlazorApp.Service
 {
     public class FileService : IFileService
     {
+        private IFileRepository _fileRepository;
+        public FileService(IFileRepository fileRepository)
+        {
+            _fileRepository = fileRepository;
+        }
         private readonly string uploadPath = @"C:\Users\Uczeń2026\source\repos\SchoolNewspaperBlazorApp\Images";
         public async Task<string> GetPreviewAsync(IBrowserFile file)
         {
@@ -14,7 +22,7 @@ namespace SchoolNewspaperBlazorApp.Service
             byte[] bytes = memoryStream.ToArray();
             return $"data:{file.ContentType};base64,{Convert.ToBase64String(bytes)}";
         }
-        public async Task UploadImage(IBrowserFile file)
+        public async Task<int> UploadImage(IBrowserFile file)
         {
             //Tworzenie folderu
             Directory.CreateDirectory(uploadPath);
@@ -28,6 +36,15 @@ namespace SchoolNewspaperBlazorApp.Service
             using var stream = file.OpenReadStream(5 * 1024 * 1024);
             using var fileStream = new FileStream(fullPath, FileMode.Create);
             await stream.CopyToAsync(fileStream);
+            var id = await _fileRepository.GetLastFileID();
+            var mediaFile = new MediaFile
+            {
+               Id = id,
+               FileName = fileName,
+                FileType = extension
+            };
+            await _fileRepository.AddFileAsync(mediaFile);
+            return id;
         }
     }
 }
