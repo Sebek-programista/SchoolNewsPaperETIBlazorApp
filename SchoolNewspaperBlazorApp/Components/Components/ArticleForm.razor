@@ -1,0 +1,29 @@
+﻿@using SchoolNewspaperBlazorApp.Data
+@using SchoolNewspaperBlazorApp.Interfaces.Service
+@inject IArticleService articleService
+
+    
+<div class="add-article-form">
+    <h1>Dodaj artykul</h1>
+    <form @onsubmit="AddArticle" @onsubmit:preventDefault>
+        <button type="button" class="btn btn-secondary" @onclick=" () => SetView(0)">Wróc</button>
+        <input @bind="title" class="form-control" />
+        <textarea @bind="text" class="form-control" />
+        <input @bind="author" class="form-control" />
+        <button type="submit" class="btn btn-primary">Dodaj</button>
+    </form>
+</div>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = "";
+    [Parameter]
+    public string Text { get; set; } = "";
+    [Parameter]
+    public string Author { get; set; } = "";
+
+    private async Task AddArticle()
+    {
+        await articleService.AddArticleAsync(Title, Text, Author);
+    }
+}
