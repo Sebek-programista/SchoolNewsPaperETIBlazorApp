@@ -26,15 +26,21 @@
     public string Text { get; set; } = "";
     public string Author { get; set; } = "";
     private string? previewImage;
+    IBrowserFile file;
     private async Task ChoosePhoto(InputFileChangeEventArgs e)
     {
-        IBrowserFile file = e.File;
+        file = e.File;
         previewImage = await fileService.GetPreviewAsync(file);    
-        
+
     }
 
     private async Task AddArticle()
     {
+        if (file != null)
+        {
+            await fileService.UploadImage(file);
+        }
         await articleService.AddArticleAsync(Title, Text, Author);
+        
     }
 }

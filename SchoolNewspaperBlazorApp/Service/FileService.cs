@@ -16,12 +16,18 @@ namespace SchoolNewspaperBlazorApp.Service
         }
         public async Task UploadImage(IBrowserFile file)
         {
+            //Tworzenie folderu
             Directory.CreateDirectory(uploadPath);
-            string extension = Path.GetExtension(uploadPath);
+            //Potwierdzenie, że plik jest obrazem
+            string extension = Path.GetExtension(file.Name);
+            //Generownaie unikalnej nazwy pliku
             string fileName = $"{Guid.NewGuid()}{extension}";
+            //łączenie ścieżki do folderu z nazwą pliku
+            string fullPath = Path.Combine(uploadPath, fileName);
 
-            string fullPath = Path.Combine(uploadPath, fileName); 
-
+            using var stream = file.OpenReadStream(5 * 1024 * 1024);
+            using var fileStream = new FileStream(fullPath, FileMode.Create);
+            await stream.CopyToAsync(fileStream);
         }
     }
 }
