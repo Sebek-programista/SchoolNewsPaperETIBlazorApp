@@ -36,11 +36,12 @@
 
     private async Task AddArticle()
     {
+        int id = 0;
         if (file != null)
         {
-            await fileService.UploadImage(file);
+             id = await fileService.UploadImage(file);
         }
-        await articleService.AddArticleAsync(Title, Text, Author);
+        await articleService.AddArticleAsync(Title, Text, Author, id);
         
     }
 }

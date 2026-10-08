@@ -53,7 +53,7 @@ namespace SchoolNewspaperBlazorApp.Migrations
                     b.ToTable("Articles");
                 });
 
-            modelBuilder.Entity("SchoolNewspaperBlazorApp.Data.File", b =>
+            modelBuilder.Entity("SchoolNewspaperBlazorApp.Data.MediaFile", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
