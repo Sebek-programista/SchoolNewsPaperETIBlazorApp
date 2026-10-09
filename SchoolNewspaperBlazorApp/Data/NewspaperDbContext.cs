@@ -11,9 +11,9 @@
 
             protected override void OnModelCreating(ModelBuilder mb)
             {
-               mb.Entity<MediaFile>()
-                    .Property(x => x.Id)
-                    .ValueGeneratedOnAdd();
+            mb.Entity<MediaFile>()
+                 .Property(x => x.Id)
+                 .ValueGeneratedNever();
             }
         
 

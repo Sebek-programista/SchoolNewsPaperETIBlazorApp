@@ -1,0 +1,57 @@
+@using Microsoft.AspNetCore.Components
+
+<div class="add-article-wrap">
+    <div class="article-editor admin-card">
+        <input class="article-title" placeholder="Tytuł artykułu" @bind="title" />
+        <div class="editor-toolbar">
+            <div class="tool">B</div>
+            <div class="tool">I</div>
+            <div class="tool">Link</div>
+        </div>
+        <textarea class="form-control-modern" style="min-height:120px;" @bind="content"></textarea>
+
+        <div class="article-meta-row">
+            <input class="form-control-modern" placeholder="Autor" @bind="author" />
+            <input class="form-control-modern" placeholder="Tagi (oddzielone przecinkami)" @bind="tags" />
+        </div>
+
+        <div class="article-actions" style="margin-top:12px;">
+            <button class="btn-modern" @onclick="Save">Zapisz</button>
+            <button class="btn-outline" @onclick="Cancel">Anuluj</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int? ArticleId { get; set; }
+    [Parameter] public EventCallback OnSaved { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private string title { get; set; } = string.Empty;
+    private string content { get; set; } = string.Empty;
+    private string author { get; set; } = string.Empty;
+    private string tags { get; set; } = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        if (ArticleId.HasValue)
+        {
+            // załaduj dane artykułu (tu przykładowe)
+            title = $"Przykładowy artykuł #{ArticleId.Value}";
+            content = "Treść artykułu...";
+            author = "Redakcja";
+            tags = "przykład, test";
+        }
+    }
+
+    private async Task Save()
+    {
+        // zapisz (symulacja)
+        await OnSaved.InvokeAsync();
+    }
+
+    private async Task Cancel()
+    {
+        await OnCancel.InvokeAsync();
+    }
+}

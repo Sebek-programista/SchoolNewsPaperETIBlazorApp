@@ -1,0 +1,122 @@
+@page "/admin"
+
+@using System.Threading.Tasks
+
+<div class="admin-panel">
+    <aside class="admin-sidebar">
+        <div class="side-section">
+            <h4>Panel</h4>
+            <a class="nav-link" href="#" @onclick="() => SelectAsync("dashboard")">Dashboard</a>
+            <a class="nav-link" href="#" @onclick="() => SelectAsync("articles")">Artykuły</a>
+            <a class="nav-link" href="#" @onclick="() => SelectAsync("create")">Dodaj artykuł</a>
+        </div>
+
+        <div class="side-section">
+            <h4>Podstrony</h4>
+            <div class="subpages-list">
+                <div class="subpage-item">
+                    <div>
+                        <div class="meta">Lista artykułów</div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-outline" @onclick="() => SelectAsync("articles")">Otwórz</button>
+                    </div>
+                </div>
+                <div class="subpage-item">
+                    <div>
+                        <div class="meta">Dodaj nowy</div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-outline" @onclick="() => SelectAsync("create")">Otwórz</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="admin-content">
+        <div class="admin-header">
+            <h2>@CurrentTitle</h2>
+            <div class="admin-actions">
+                <button class="admin-add-article pulse" @onclick="() => SelectAsync("create")">+
+                    <span>Dodaj artykuł</span>
+                </button>
+                <button class="btn-outline" @onclick="Refresh">Odśwież</button>
+            </div>
+        </div>
+
+        @if (view == "dashboard")
+        {
+            <div class="admin-card">
+                <div class="admin-metrics">
+                    <div class="admin-metric">
+                        <div class="meta">Artykuły</div>
+                        <div class="value">128</div>
+                    </div>
+                    <div class="admin-metric">
+                        <div class="meta">Użytkownicy</div>
+                        <div class="value">24</div>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (view == "articles")
+        {
+            <ArticleList OnEdit="EditArticle" />
+        }
+        else if (view == "create" || view == "edit")
+        {
+            <ArticleEdit ArticleId="editingId" OnSaved="OnSaved" OnCancel="OnCancel" />
+        }
+
+    </main>
+</div>
+
+@code {
+    private string view = "dashboard";
+    private int? editingId;
+
+    private string CurrentTitle => view switch
+    {
+        "dashboard" => "Panel administracyjny",
+        "articles" => "Lista artykułów",
+        "create" => "Dodaj artykuł",
+        "edit" => "Edytuj artykuł",
+        _ => "Panel"
+    };
+
+    private Task SelectAsync(string target)
+    {
+        view = target;
+        if (target != "edit") editingId = null;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task EditArticle(int id)
+    {
+        editingId = id;
+        view = "edit";
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnSaved()
+    {
+        view = "articles";
+        editingId = null;
+        return Task.CompletedTask;
+    }
+
+    private Task OnCancel()
+    {
+        view = "articles";
+        editingId = null;
+        return Task.CompletedTask;
+    }
+
+    private void Refresh()
+    {
+        // tu można odświeżyć dane
+    }
+}

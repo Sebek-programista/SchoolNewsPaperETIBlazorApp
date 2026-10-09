@@ -1,0 +1,38 @@
+@page "/article/{Id:int}"
+@using Microsoft.AspNetCore.Components
+@inject NavigationManager Nav
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private string title = "";
+    private string content = "";
+    private string author = "";
+    private string date = "";
+
+    protected override void OnInitialized()
+    {
+        // symulacja ładowania artykułu; w realnej aplikacji pobierz z serwisu
+        title = $"Przykładowy artykuł #{Id}";
+        content = "<p>To jest pełna treść artykułu. Tutaj można wstawić obrazki, paragrafy, formatowanie.</p><p>Dalszy tekst artykułu...</p>";
+        author = "Redakcja";
+        date = "2026-10-01";
+    }
+}
+
+<div class="container-card article-page">
+    <div class="article-header">
+        <h1>@(new MarkupString(title))</h1>
+        <div class="article-meta">@author • @date</div>
+    </div>
+
+    <div class="article-body">
+        @((MarkupString)content)
+    </div>
+
+    <div style="margin-top:18px;">
+        <button class="btn-outline" @onclick="() => Nav.NavigateTo("/admin")">Powrót do panelu</button>
+        <button class="btn-modern" @onclick="() => Nav.NavigateTo($"/admin")">Edytuj</button>
+    </div>
+</div>
