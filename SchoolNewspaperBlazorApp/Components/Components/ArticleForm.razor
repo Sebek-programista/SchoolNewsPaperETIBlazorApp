@@ -14,7 +14,7 @@
     <InputFile onchange="ChoosePhoto" accept="image/*" />
     <form @onsubmit="AddArticle" @onsubmit:preventDefault>
         <input @bind="Title" class="form-control"  
-        <textarea @bind="Text" class="form-control" />
+        <input @bind="Text" class="form-control" />
         <input @bind="Author" class="form-control" />
         <button type="submit" class="btn btn-primary">Dodaj</button>
     </form>

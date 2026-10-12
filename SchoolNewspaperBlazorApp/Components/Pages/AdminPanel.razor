@@ -16,11 +16,15 @@
     {
        <ArticleForm/>
     }
+    else if (view == 3)
+    {
+        <AddUserForm/>
+    }   
     @if (view == 0)
     {
         <button class="btn btn-primary" @onclick="LoadArticleAsync">Panel artykulow</button>
         <button class="btn btn-primary" @onclick=" () => SetView(2)">Dodaj artykul</button>
-        <button class="btn btn-primary" @onclick="">+ Dodaj Uzytkownika</button>
+        <button class="btn btn-primary" @onclick=" () => SetView(3)">+ Dodaj Uzytkownika</button>
     }
     else
     {

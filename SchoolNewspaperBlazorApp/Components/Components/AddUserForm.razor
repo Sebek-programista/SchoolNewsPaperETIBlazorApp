@@ -1,0 +1,12 @@
+﻿<h3>Dodaj Uzytkownika</h3>
+<form @onsubmit:preventDefault>
+    <input @bind="Login" class="form-control" />
+    <input @bind="Password" class="form-control" />
+    <input @bind="Email" class="form-control" />
+    <button type="submit" class="btn btn-primary">Dodaj</button>
+</form>
+@code {
+    public required string Login { get; set; }
+    public required string Password { get; set; }
+    public required string Email { get; set; }   
+}
