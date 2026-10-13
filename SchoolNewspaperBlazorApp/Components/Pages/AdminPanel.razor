@@ -1,6 +1,7 @@
 ﻿@page "/adminPanel"
 @rendermode InteractiveServer
 @inject IArticleService articleService
+@inject IFileService fileService
 @using SchoolNewspaperBlazorApp.Components.Components
 @using SchoolNewspaperBlazorApp.Data
 @using SchoolNewspaperBlazorApp.Interfaces.Service
@@ -8,42 +9,151 @@
 <div class="main-block">
     @if (view == 1)
     {
-        <div class="article-panel">
-            <ArticleCard Articles="articleList" permissions="true" />
+        <div class="article-panel overview">
+
+            <div class="stats-row">
+                <div class="stat-card">
+                    <span class="stat-label">Wszystkie artykuły</span>
+                    <span class="stat-value">@articleList.Count</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">W tym miesiącu</span>
+                    <span class="stat-value">@ThisMonthCount</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Autorzy</span>
+                    <span class="stat-value">@AuthorsCount</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Ostatnio dodany</span>
+                    <span class="stat-value small">@LastAddedText</span>
+                </div>
+            </div>
+
+            <div class="chart-box">
+                <h4>Dodane artykuły: ostatnie 6 miesięcy</h4>
+                <div class="bar-chart">
+                    @foreach (var m in MonthStats)
+                    {
+                        <div class="bar-col">
+                            <span class="bar-count">@m.Count</span>
+                            <div class="bar" style="--h:@(MaxCount == 0 ? 0 : m.Count * 100 / MaxCount)%"></div>
+                            <span class="bar-label">@m.Label</span>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table class="table overview-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Zdjęcie</th>
+                            <th>Tytuł</th>
+                            <th>Autor</th>
+                            <th>Dodano</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var a in articleList.OrderByDescending(x => x.PublishDate))
+                        {
+                            <tr>
+                                <td>@a.Id</td>
+                                <td class="t-thumb">
+    @if (imageUrls.TryGetValue(a.FileID, out var url))
+    {
+        <img class="thumb" src="@url" alt="@a.Title" loading="lazy" />
+    }
+    else
+    {
+        <div class="thumb thumb-empty">brak</div>
+    }
+</td>
+                                <td class="t-title">@a.Title</td>
+                                <td>@a.Author</td>
+                                <td>@a.PublishDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                <td class="t-actions">
+                                    <button class="btn btn-danger" @onclick="() => RemoveAsync(a.Id)">Usuń</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
         </div>
     }
     else if (view == 2)
     {
-       <ArticleForm/>
+        <ArticleForm />
     }
     else if (view == 3)
     {
-        <AddUserForm/>
-    }   
+        <AddUserForm />
+    }
+
     @if (view == 0)
     {
         <button class="btn btn-primary" @onclick="LoadArticleAsync">Panel artykulow</button>
-        <button class="btn btn-primary" @onclick=" () => SetView(2)">Dodaj artykul</button>
-        <button class="btn btn-primary" @onclick=" () => SetView(3)">+ Dodaj Uzytkownika</button>
+        <button class="btn btn-primary" @onclick="() => SetView(2)">Dodaj artykul</button>
+        <button class="btn btn-primary" @onclick="() => SetView(3)">+ Dodaj Uzytkownika</button>
     }
     else
     {
-        <button class="btn btn-primary" @onclick=" () => SetView(0)">Wróc</button>
+        <button class="btn btn-primary" @onclick="() => SetView(0)">Wróc</button>
     }
 </div>
 
-
 @code {
     public int view = 0;
-    public List<Article> articleList = new List<Article>();
-   
-    public void SetView(int view)
+    public List<Article> articleList = new();
+    Dictionary<int, string> imageUrls = new();
+
+    int ThisMonthCount => articleList.Count(a =>
+        a.PublishDate.Year == DateTime.Now.Year && a.PublishDate.Month == DateTime.Now.Month);
+
+    int AuthorsCount => articleList.Select(a => a.Author).Distinct().Count();
+
+    string LastAddedText => articleList.Count == 0
+        ? "brak"
+        : articleList.Max(a => a.PublishDate).ToString("dd.MM.yyyy");
+
+    List<(string Label, int Count)> MonthStats => Enumerable.Range(0, 6)
+        .Select(i => DateTime.Now.AddMonths(-(5 - i)))
+        .Select(d => (
+            d.ToString("MMM yy", new System.Globalization.CultureInfo("pl-PL")),
+            articleList.Count(a => a.PublishDate.Year == d.Year && a.PublishDate.Month == d.Month)))
+        .ToList();
+
+    int MaxCount => MonthStats.Max(m => m.Count);
+
+    public void SetView(int view) => this.view = view;
+
+    async Task LoadImagesAsync()
     {
-        this.view = view;
+        imageUrls.Clear();
+        foreach (var a in articleList)
+        {
+            var fileName = await fileService.GetFileNameByIdAsync(a.FileID);
+            if (!string.IsNullOrWhiteSpace(fileName))
+            {
+                imageUrls[a.FileID] = $"/Images/{fileName}";
+            }
+        }
     }
+
     public async Task LoadArticleAsync()
     {
         articleList = await articleService.GetAllArticlesAsync();
+        await LoadImagesAsync();
         SetView(1);
+    }
+
+    public async Task RemoveAsync(int id)
+    {
+        await articleService.RemoveArticleByIdAsync(id);
+        articleList.RemoveAll(a => a.Id == id);
     }
 }
