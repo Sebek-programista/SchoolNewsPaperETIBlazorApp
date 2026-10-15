@@ -6,11 +6,11 @@ namespace SchoolNewspaperBlazorApp.Service
 {
     public class AuthService : IAuthService
     {
-        private readonly NewspaperDbContext _context;
+        private readonly NewspaperDbContext _authRepository;
 
         public AuthService(NewspaperDbContext context)
         {
-            _context = context;
+            _authRepository = context;
         }
 
         public async Task AddUserAsync(string login, string password, string email)
@@ -23,8 +23,16 @@ namespace SchoolNewspaperBlazorApp.Service
                 RegisterDate = DateTime.Now
             };
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            _authRepository.Users.Add(user);
+            await _authRepository.SaveChangesAsync();
+        }
+        public async Task<bool> CheckIfRegisteredAsync(
+            string login, string password)
+        {
+            // Uwaga: hasła powinny być przechowywane w postaci skrótu (hash) — to tylko przykład działania.
+            return await _authRepository.Users
+                .AnyAsync(u => u.Login == login && u.Password == password);
+
         }
     }
 }
