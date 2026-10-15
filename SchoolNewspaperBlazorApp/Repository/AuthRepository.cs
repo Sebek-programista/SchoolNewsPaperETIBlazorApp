@@ -19,17 +19,17 @@ namespace SchoolNewspaperBlazorApp.Repository
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
         }
-        public async Task<bool> CheckIfRegisteredAsync(string login, string password)
+        public async Task<string> CheckIfRegisteredAsync(string login, string password)
         {
-            var exist = await _context.Users
-                .AnyAsync(u => u.Login == login && u.Password == password);
-            if (exist)
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Login == login);
+            if (user != null)
             {
-                return true;
+                return user.Password;
             }
             else 
             {
-                return false;
+                throw new Exception("Konto nie istenieje");
             }
 
         }
