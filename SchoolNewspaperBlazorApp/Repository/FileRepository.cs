@@ -7,14 +7,14 @@ namespace SchoolNewspaperBlazorApp.Repository
 {
     public class FileRepository : IFileRepository
     {
-        private readonly NewspaperDbContext _context;
-        public FileRepository(NewspaperDbContext context)
+        private readonly IDbContextFactory<NewspaperDbContext> _contextFactory;
+        public FileRepository(IDbContextFactory<NewspaperDbContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
         public async Task<int> GetLastFileID()
         {
-            var id = await _context.Files
+            var id = await _contextFactory.CreateDbContext().Files
                 .OrderByDescending(f => f.Id)
                 .Select(f => f.Id)
                 .FirstOrDefaultAsync();
@@ -23,7 +23,7 @@ namespace SchoolNewspaperBlazorApp.Repository
         }
         public async Task<MediaFile> GetFileByIdAsync(int id)
         {
-            var fileId = await _context.Files.FirstOrDefaultAsync(a => a.Id == id);
+            var fileId = await _contextFactory.CreateDbContext().Files.FirstOrDefaultAsync(a => a.Id == id);
             if (fileId == null) {
                 throw new Exception($"File with ID {id} not found.");
             }
@@ -31,8 +31,8 @@ namespace SchoolNewspaperBlazorApp.Repository
         }
         public async Task AddFileAsync(MediaFile file) 
         {
-            await _context.Files.AddAsync(file);
-            await _context.SaveChangesAsync();
+            await _contextFactory.CreateDbContext().Files.AddAsync(file);
+            await _contextFactory.CreateDbContext().SaveChangesAsync();
 
         }
     }

@@ -7,11 +7,11 @@ namespace SchoolNewspaperBlazorApp.Repository
 {
     public class AuthRepository : IAuthRepository
     {
-        private readonly NewspaperDbContext _context;
+        private readonly IDbContextFactory<NewspaperDbContext> _contextFactory;
 
-        public AuthRepository(NewspaperDbContext context)
+        public AuthRepository(IDbContextFactory<NewspaperDbContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
 
         public async Task AddUserAsync(string login, string password, string email)
@@ -26,12 +26,12 @@ namespace SchoolNewspaperBlazorApp.Repository
                 RegisterDate = DateTime.Now
             };
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            _contextFactory.CreateDbContext().Users.Add(user);
+            await _contextFactory.CreateDbContext().SaveChangesAsync();
         }
         public async Task<string> CheckIfRegisteredAsync(string login, string password)
         {
-            var user = await _context.Users
+            var user = await _contextFactory.CreateDbContext().Users
                 .FirstOrDefaultAsync(u => u.Login == login);
             if (user != null)
             {

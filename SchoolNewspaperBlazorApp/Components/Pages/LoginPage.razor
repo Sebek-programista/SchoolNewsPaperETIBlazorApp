@@ -1,4 +1,6 @@
 ﻿@page "/login"
+@inject IJSRuntime JS
+@inject NavigationManager nav
 @rendermode InteractiveServer
 @using SchoolNewspaperBlazorApp.Interfaces.Service
 
@@ -6,28 +8,12 @@
 @inject IAuthService authService;
 
 <h3>Logowanie</h3>
-<h1>@ErrorMessage</h1>
-<form @onsubmit="LoginUser" @onsubmit:preventDefault>
-    <input @bind="Login" class="form-control"
-    <input @bind="Password" class="form-control" />
+
+<form action="/auth/login" method="post">
+    <input  class="form-control" placeholder="Login" name="Login"/>
+    <input  class="form-control" placeholder="Hasło" name="Password"/>
     <button type="submit" class="btn btn-primary">Zaloguj</button>
 </form>
 @code {
-    public string Login { get; set; }
-    public string Password { get; set; }
-    public string ErrorMessage { get; set; }
-    private async Task LoginUser()
-    {
-        bool result = await authService
-            .CheckIfRegisteredAsync(Login, Password);
-
-        if (result)
-        {
-            ErrorMessage = "Zalogowano pomyślnie!";
-        }
-        else
-        {
-            ErrorMessage = "Nieprawidłowy login lub hasło.";
-        }
-    }
+   
 }
