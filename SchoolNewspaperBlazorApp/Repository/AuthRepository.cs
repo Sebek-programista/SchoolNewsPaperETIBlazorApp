@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using SchoolNewspaperBlazorApp.Data;
 using SchoolNewspaperBlazorApp.Interfaces.Repository;
 
@@ -13,10 +14,19 @@ namespace SchoolNewspaperBlazorApp.Repository
             _context = context;
         }
 
-        public async Task AddUserAsync(User user)
+        public async Task AddUserAsync(string login, string password, string email)
         {
-            // DbSet nazwany Users w NewspaperDbContext
-            await _context.Users.AddAsync(user);
+            var hasher = new PasswordHasher<string>();
+            string passwordHash = hasher.HashPassword(null!, password);
+            var user = new User
+            {
+                Login = login,
+                Password = passwordHash,
+                Email = email,
+                RegisterDate = DateTime.Now
+            };
+
+            _context.Users.Add(user);
             await _context.SaveChangesAsync();
         }
         public async Task<string> CheckIfRegisteredAsync(string login, string password)

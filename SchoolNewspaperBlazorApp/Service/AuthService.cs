@@ -1,18 +1,20 @@
-﻿using SchoolNewspaperBlazorApp.Data;
-using SchoolNewspaperBlazorApp.Interfaces.Service;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
+using SchoolNewspaperBlazorApp.Data;
+using SchoolNewspaperBlazorApp.Interfaces.Repository;
+using SchoolNewspaperBlazorApp.Interfaces.Service;
 
 namespace SchoolNewspaperBlazorApp.Service
 {
     public class AuthService : IAuthService
     {
-        private readonly NewspaperDbContext _authRepository;
+        private readonly IAuthRepository _authRepository;
 
-        public AuthService(NewspaperDbContext context)
+        public AuthService(IAuthRepository authRepository)
         {
-            _authRepository = context;
+            _authRepository = authRepository;
         }
+
 
         public async Task AddUserAsync(string login, string password, string email)
         {
@@ -26,18 +28,29 @@ namespace SchoolNewspaperBlazorApp.Service
                 RegisterDate = DateTime.Now
             };
 
-            _authRepository.Users.Add(user);
-            await _authRepository.SaveChangesAsync();
+            await _authRepository.AddUserAsync(login, password, email);
         }
         public async Task<bool> CheckIfRegisteredAsync(
             string login, string password)
         {
             var hasher = new PasswordHasher<string>();
-            string passwordHash = hasher.HashPassword(null!, password)
             // Uwaga: hasła powinny być przechowywane w postaci skrótu (hash) — to tylko przykład działania.
-            return await _authRepository.Users
-                .AnyAsync(u => u.Login == login && u.Password == passwordHash);
-
+            try
+            {
+                var dbPass = await _authRepository.CheckIfRegisteredAsync(login, password);
+                var result = hasher.VerifyHashedPassword(login, dbPass, password);
+                if (result == PasswordVerificationResult.Success)
+                {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            catch (Exception) 
+            {
+                return false;
+            }
         }
     }
 }
