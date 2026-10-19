@@ -1,27 +1,162 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
+﻿
 @using SchoolNewspaperBlazorApp.Interfaces.Service
-@using System.Security.Claims
-@inject IAuthService _authService
-@foreach(var user in Users)
+@using SchoolNewspaperBlazorApp.Data
+
+@inject IAuthService AuthService
+@inject IPermissionService PermissionService
+
+<h3>Zarządzanie permisjami użytkowników</h3>
+
+@if (UsersEmail.Count == 0)
 {
-<div class="article-card">
-    <div class="article-card__body">
-        <h5 class="article-card__title">@user</h5>
-            <button class="btn btn-sm btn-outline-danger">
-                Przejdz do panelu permisji
-            </button>
+    <p>Ładowanie użytkowników...</p>
+}
+else
+{
+    @foreach (var user in UsersEmail)
+    {
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">@user.Value</h5>
+
+                <button class="btn btn-primary btn-sm"
+                        @onclick="() => OpenPermissions(user.Key)">
+                    Nadaj permisję
+                </button>
+
+                @if (SelectedUserId == user.Key)
+                {
+                    <div class="mt-3 p-3 border rounded">
+                        <h6>Wybierz uprawnienia</h6>
+
+                        @foreach (var permission in AvailablePermissions)
+                        {
+                            <div class="form-check" @key="permission">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       id="@($"perm-{user.Key}-{permission}")"
+                                       @bind="PermissionSelections[permission]" />
+
+                                <label class="form-check-label"
+                                       for="@($"perm-{user.Key}-{permission}")">
+                                    @GetPermissionName(permission)
+                                </label>
+                            </div>
+                        }
+
+                        <div class="mt-3">
+                            <button class="btn btn-success btn-sm"
+                                    @onclick="() => SavePermissionsAsync(user.Key)">
+                                Zapisz permisje
+                            </button>
+
+                            <button class="btn btn-secondary btn-sm ms-2"
+                                    @onclick="CancelPermissions">
+                                Anuluj
+                            </button>
+                        </div>
+                    </div>
+                }
+
+                @if (SavedPermissions.ContainsKey(user.Key))
+                {
+                    <div class="alert alert-success mt-3 mb-0">
+                        <strong>Wybrane permisje:</strong>
+
+                        <ul class="mb-0 mt-2">
+                            @foreach (var permission in SavedPermissions[user.Key])
+                            {
+                                <li>@GetPermissionName(permission)</li>
+                            }
+                        </ul>
+                    </div>
+                }
+            </div>
         </div>
+    }
+}
+
+@if (!string.IsNullOrWhiteSpace(StatusMessage))
+{
+    <div class="alert alert-info mt-3" role="status">
+        @StatusMessage
     </div>
 }
 
 @code {
-    public Dictionary<int,string> Users { get; set; } = new Dictionary<int, string>();
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private Dictionary<int, string> UsersEmail { get; set; } = new();
+
+    private int? SelectedUserId { get; set; }
+
+    private string StatusMessage { get; set; } = string.Empty;
+
+    private List<EnumPermissions> AvailablePermissions { get; set; } =
+        Enum.GetValues<EnumPermissions>()
+            .Where(p => p != EnumPermissions.Master)
+            .ToList();
+
+    private Dictionary<EnumPermissions, bool> PermissionSelections { get; set; } =
+        new();
+
+    private Dictionary<int, List<EnumPermissions>> SavedPermissions { get; set; } =
+        new();
+
+    protected override async Task OnInitializedAsync()
     {
-        if(firstRender)
+        UsersEmail = await AuthService.GetAllUsersAsync();
+    }
+
+    private void OpenPermissions(int userId)
+    {
+        SelectedUserId = userId;
+        StatusMessage = string.Empty;
+
+        PermissionSelections = AvailablePermissions.ToDictionary(
+            permission => permission,
+            permission => SavedPermissions.TryGetValue(userId, out var saved)
+                          && saved.Contains(permission));
+    }
+
+   private async Task SavePermissionsAsync(int userId)
+{
+    var selected = PermissionSelections
+        .Where(item => item.Value)
+        .Select(item => item.Key)
+        .Where(permission => permission != EnumPermissions.Master)
+        .ToList();
+
+    await PermissionService.SavePermissionAsync(selected, userId);
+
+    SavedPermissions[userId] = selected;
+
+    var username = UsersEmail.TryGetValue(userId, out var name)
+        ? name
+        : userId.ToString();
+
+    StatusMessage = $"Zapisano permisje w bazie danych dla użytkownika: {username}.";
+
+    SelectedUserId = null;
+}
+
+    private void CancelPermissions()
+    {
+        SelectedUserId = null;
+        PermissionSelections.Clear();
+        StatusMessage = string.Empty;
+    }
+
+    private string GetPermissionName(EnumPermissions permission)
+    {
+        return permission switch
         {
-            Users = await _authService.GetAllUsersAsync();
-            StateHasChanged();
-        }
+            EnumPermissions.AddArticle => "Dodawanie artykułów",
+            EnumPermissions.EditArticle => "Edytowanie artykułów",
+            EnumPermissions.DeleteArticle => "Usuwanie artykułów",
+            EnumPermissions.AddUser => "Dodawanie użytkowników",
+            EnumPermissions.ManageUser => "Zarządzanie użytkownikami",
+            EnumPermissions.AddFile => "Dodawanie plików",
+            _ => permission.ToString()
+        };
+
     }
 }
