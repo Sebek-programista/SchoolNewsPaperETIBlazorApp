@@ -5,24 +5,18 @@
 namespace SchoolNewspaperBlazorApp.Migrations
 {
     /// <inheritdoc />
-    public partial class Init1 : Migration
+    public partial class fixers1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "PulbishDate",
-                table: "Articles",
-                newName: "PublishDate");
+
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "PublishDate",
-                table: "Articles",
-                newName: "PulbishDate");
+
         }
     }
 }
