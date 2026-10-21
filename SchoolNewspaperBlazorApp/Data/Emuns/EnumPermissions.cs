@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SchoolNewspaperBlazorApp.Data
+namespace SchoolNewspaperBlazorApp.Data.Emuns
 {
     public enum EnumPermissions
     {

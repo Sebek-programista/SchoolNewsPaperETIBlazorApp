@@ -1,8 +1,10 @@
 ﻿@page "/login"
+@using Microsoft.AspNetCore.Components.Authorization
 @using SchoolNewspaperBlazorApp.Interfaces.Service
 @rendermode InteractiveServer
 @inject IJSRuntime JS
 @inject NavigationManager nav
+@inject AuthenticationStateProvider _asp;
 <PageTitle>Logowanie | Gazetka ETI</PageTitle>
 
 <div class="login-page">
@@ -139,7 +141,17 @@
 
 
 @code {
+    private bool IsLoggedIn;
+    protected override async Task OnInitializedAsync()
+    {
 
-
+        var authState = await _asp.GetAuthenticationStateAsync();
+        var user = authState.User;
+        IsLoggedIn = user.Identity?.IsAuthenticated ?? false;
+        if (IsLoggedIn)
+        {
+            nav.NavigateTo("/");
+        }
+    }
     }
 

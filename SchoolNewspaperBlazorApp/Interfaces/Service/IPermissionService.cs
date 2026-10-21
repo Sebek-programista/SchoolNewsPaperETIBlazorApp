@@ -1,4 +1,4 @@
-﻿using SchoolNewspaperBlazorApp.Data;
+﻿using SchoolNewspaperBlazorApp.Data.Emuns;
 using System.Security.Claims;
 
 namespace SchoolNewspaperBlazorApp.Interfaces.Service

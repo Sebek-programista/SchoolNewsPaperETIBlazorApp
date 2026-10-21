@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SchoolNewspaperBlazorApp.Data;
+using SchoolNewspaperBlazorApp.Data.Emuns;
 using SchoolNewspaperBlazorApp.Interfaces.Repository;
 using System.Security.Claims;
 

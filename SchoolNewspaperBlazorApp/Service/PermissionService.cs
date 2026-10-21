@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
-using SchoolNewspaperBlazorApp.Data;
+using SchoolNewspaperBlazorApp.Data.Emuns;
 using SchoolNewspaperBlazorApp.Interfaces.Repository;
 using SchoolNewspaperBlazorApp.Interfaces.Service;
 using System.Security.Claims;

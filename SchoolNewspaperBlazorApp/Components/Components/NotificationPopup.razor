@@ -1,0 +1,10 @@
+﻿@using SchoolNewspaperBlazorApp.Data.Emuns
+<div class="notification-window">
+        <h1>@NotificationMessage</h1>
+        <h3>@NotificationType.ToString()</h3>
+</div>
+
+@code {
+    public string? NotificationMessage { get; set; }
+    public EnumNotificationType? NotificationType { get; set; }
+}
