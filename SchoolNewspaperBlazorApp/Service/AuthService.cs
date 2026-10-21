@@ -35,7 +35,7 @@ namespace SchoolNewspaperBlazorApp.Service
             string passwordHash = hasher.HashPassword(null!, password);
             var auth = new User
             {
-               Login = login,
+
                Password = passwordHash,
                Email = email,
                RegisterDate = DateTime.Now
@@ -47,7 +47,7 @@ namespace SchoolNewspaperBlazorApp.Service
             }
             else
             {
-                _notificationService.Show("Podczas dodawania uzytkownika wystąpił błąd! Skontaktuj sie z obslugą techniczną", EnumNotificationType.Faliure);
+                _notificationService.Show("Podczas dodawania uzytkownika wystąpił błąd lub już istnieje konto z takim adresem email! Skontaktuj sie z obslugą techniczną", EnumNotificationType.Faliure);
             }
         }
         public async Task<int> CheckIfRegisteredAsync(string login,string password)
