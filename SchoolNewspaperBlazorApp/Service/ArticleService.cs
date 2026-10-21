@@ -56,14 +56,15 @@ namespace SchoolNewspaperBlazorApp.Service
             }
             return article;
         }
-        public async Task RemoveArticleByIdAsync(int id)
+        public async Task<bool> RemoveArticleByIdAsync(int id)
         {
             bool hasPermission = await _permissionService.HasPermissionAsync(EnumPermissions.DeleteArticle);
-            if (!hasPermission) return;
+            if (!hasPermission) return false;
             if (id > 0)
             {
                  await _articleRepository.RemoveArticleByIdAsync(id);
             }
+            return true;
         }
     }
 }

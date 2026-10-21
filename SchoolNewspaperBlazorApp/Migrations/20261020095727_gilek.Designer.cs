@@ -12,8 +12,8 @@ using SchoolNewspaperBlazorApp.Data;
 namespace SchoolNewspaperBlazorApp.Migrations
 {
     [DbContext(typeof(NewspaperDbContext))]
-    [Migration("20261019062904_Init")]
-    partial class Init
+    [Migration("20261020095727_gilek")]
+    partial class gilek
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -85,9 +85,13 @@ namespace SchoolNewspaperBlazorApp.Migrations
                     b.Property<int>("PermissionName")
                         .HasColumnType("int");
 
+                    b.Property<string>("PermissionViewName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Permission");
+                    b.ToTable("Permissions");
                 });
 
             modelBuilder.Entity("SchoolNewspaperBlazorApp.Data.User", b =>
@@ -130,11 +134,15 @@ namespace SchoolNewspaperBlazorApp.Migrations
                     b.Property<int>("PermissionId")
                         .HasColumnType("int");
 
+                    b.Property<string>("PermissionName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("UserId", "PermissionId");
 
                     b.HasIndex("PermissionId");
 
-                    b.ToTable("UserPermission");
+                    b.ToTable("UserPermissions");
                 });
 
             modelBuilder.Entity("SchoolNewspaperBlazorApp.Data.UserPermission", b =>

@@ -82,6 +82,10 @@ namespace SchoolNewspaperBlazorApp.Migrations
                     b.Property<int>("PermissionName")
                         .HasColumnType("int");
 
+                    b.Property<string>("PermissionViewName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Permissions");
@@ -126,6 +130,10 @@ namespace SchoolNewspaperBlazorApp.Migrations
 
                     b.Property<int>("PermissionId")
                         .HasColumnType("int");
+
+                    b.Property<string>("PermissionName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("UserId", "PermissionId");
 

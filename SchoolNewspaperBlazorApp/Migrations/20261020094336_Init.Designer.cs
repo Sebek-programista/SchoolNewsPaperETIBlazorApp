@@ -12,8 +12,8 @@ using SchoolNewspaperBlazorApp.Data;
 namespace SchoolNewspaperBlazorApp.Migrations
 {
     [DbContext(typeof(NewspaperDbContext))]
-    [Migration("20261019084312_fix#1")]
-    partial class fix1
+    [Migration("20261020094336_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -129,6 +129,10 @@ namespace SchoolNewspaperBlazorApp.Migrations
 
                     b.Property<int>("PermissionId")
                         .HasColumnType("int");
+
+                    b.Property<string>("PermissionName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("UserId", "PermissionId");
 

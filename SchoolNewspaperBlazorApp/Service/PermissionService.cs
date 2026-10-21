@@ -33,6 +33,9 @@ namespace SchoolNewspaperBlazorApp.Service
         }
         public async Task SavePermissionsAsync(List<EnumPermissions> permissions, int userId)
         {
+
+            bool hasPermission = await HasPermissionAsync(EnumPermissions.Master);
+            if (!hasPermission) return;
             await _permissionRepository.SavePermissionsAsync(permissions, userId);
         }
         public async Task<int> GetUserId()

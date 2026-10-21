@@ -42,7 +42,7 @@ namespace SchoolNewspaperBlazorApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Permission",
+                name: "Permissions",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -51,7 +51,7 @@ namespace SchoolNewspaperBlazorApp.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Permission", x => x.Id);
+                    table.PrimaryKey("PK_Permissions", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -72,23 +72,24 @@ namespace SchoolNewspaperBlazorApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserPermission",
+                name: "UserPermissions",
                 columns: table => new
                 {
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    PermissionId = table.Column<int>(type: "int", nullable: false)
+                    PermissionId = table.Column<int>(type: "int", nullable: false),
+                    PermissionName = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserPermission", x => new { x.UserId, x.PermissionId });
+                    table.PrimaryKey("PK_UserPermissions", x => new { x.UserId, x.PermissionId });
                     table.ForeignKey(
-                        name: "FK_UserPermission_Permission_PermissionId",
+                        name: "FK_UserPermissions_Permissions_PermissionId",
                         column: x => x.PermissionId,
-                        principalTable: "Permission",
+                        principalTable: "Permissions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserPermission_Users_UserId",
+                        name: "FK_UserPermissions_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -96,8 +97,8 @@ namespace SchoolNewspaperBlazorApp.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserPermission_PermissionId",
-                table: "UserPermission",
+                name: "IX_UserPermissions_PermissionId",
+                table: "UserPermissions",
                 column: "PermissionId");
         }
 
@@ -111,10 +112,10 @@ namespace SchoolNewspaperBlazorApp.Migrations
                 name: "Files");
 
             migrationBuilder.DropTable(
-                name: "UserPermission");
+                name: "UserPermissions");
 
             migrationBuilder.DropTable(
-                name: "Permission");
+                name: "Permissions");
 
             migrationBuilder.DropTable(
                 name: "Users");

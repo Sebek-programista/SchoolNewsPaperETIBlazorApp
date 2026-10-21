@@ -21,7 +21,7 @@ namespace SchoolNewspaperBlazorApp.Repository
                 .Select(up => up.Permission.PermissionName)
                 .ToListAsync();
         }
-        public async Task<Dictionary<EnumPermissions,bool>> GetAllUserPermissionsAsync(int userId)
+        public async Task<Dictionary<EnumPermissions, bool>> GetAllUserPermissionsAsync(int userId)
         {
             await using var context = await _contextFactory.CreateDbContextAsync();
             var permissionsList = await GetUserPermissionsAsync(userId);
@@ -40,23 +40,27 @@ namespace SchoolNewspaperBlazorApp.Repository
             {
                 return false;
             }
-            if(!int.TryParse(id, out var permissionId))
+            if (!int.TryParse(id, out var permissionId))
             {
                 return false;
             }
             await using var _context = await _contextFactory.CreateDbContextAsync();
             return await _context.UserPermissions
                 .AnyAsync(up => up.UserId == permissionId &&
-                up.Permission.PermissionName == permission);
+               (up.Permission.PermissionName == permission || up.Permission.PermissionName == EnumPermissions.Master));
         }
-        public async Task SavePermissionsAsync(List<EnumPermissions> permissions,int userId)
+        public async Task SavePermissionsAsync(List<EnumPermissions> permissions, int userId)
         {
             await using var _context = await _contextFactory.CreateDbContextAsync();
+            var masterId = await _context.Permissions
+           .Where(p => p.PermissionName == EnumPermissions.Master)
+           .Select(p => p.Id)
+           .FirstOrDefaultAsync();
             var existingPermissions = _context.UserPermissions
-                .Where(up => up.UserId == userId);
+            .Where(up => up.UserId == userId && up.PermissionId != masterId);
 
             _context.UserPermissions.RemoveRange(existingPermissions);
-            foreach(var permission in permissions)
+            foreach (var permission in permissions)
             {
                 var permissionId = await _context.Permissions
                     .Where(p => p.PermissionName == permission)

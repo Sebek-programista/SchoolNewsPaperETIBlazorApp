@@ -73,11 +73,14 @@
     }
     public async Task RemoveArticleByIdAsync(int id)
     {
-        await articleService.RemoveArticleByIdAsync(id);
-        Article? article = Articles.FirstOrDefault(a => a.Id == id);
-        if(article != null)
+        var succes = await articleService.RemoveArticleByIdAsync(id);
+        if (succes)
         {
-            Articles.Remove(article);
+            Article? article = Articles.FirstOrDefault(a => a.Id == id);
+            if (article != null)
+            {
+                Articles.Remove(article);
+            }
         }
     }
     public async Task SendDataToEdit(int id)

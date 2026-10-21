@@ -45,7 +45,7 @@
         </div>
 
         <div class="admin-actions">
-            @if(Permissions[EnumPermissions.EditArticle])
+            @if(Permissions[EnumPermissions.EditArticle] || Permissions[EnumPermissions.Master])
             {
             <button type="button"
                     class="admin-action"
@@ -66,7 +66,7 @@
                 </span>
             </button>
             }
-            @if(Permissions[EnumPermissions.AddArticle])
+            @if (Permissions[EnumPermissions.AddArticle] || Permissions[EnumPermissions.Master])
             {
             <button type="button"
                     class="admin-action"
@@ -87,7 +87,7 @@
                 </span>
             </button>
             }
-            @if (Permissions[EnumPermissions.Master])
+            @if (Permissions[EnumPermissions.AddUser] || Permissions[EnumPermissions.Master])
             {
             <button type="button"
                     class="admin-action"

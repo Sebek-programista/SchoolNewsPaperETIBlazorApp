@@ -22,8 +22,8 @@ namespace SchoolNewspaperBlazorApp.Service
         }
         public async Task AddUserAsync(string login, string password, string email)
         {
-            bool hasPermission = await _permissionService.HasPermissionAsync(EnumPermissions.AddUser);
-            if (!hasPermission) return;
+            //bool hasPermission = await _permissionService.HasPermissionAsync(EnumPermissions.AddUser);
+            //if (!hasPermission) return;
             var hasher = new PasswordHasher<string>();
             string passwordHash = hasher.HashPassword(null!, password);
             var auth = new User

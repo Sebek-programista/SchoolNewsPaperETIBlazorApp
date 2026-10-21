@@ -10,7 +10,7 @@ namespace SchoolNewspaperBlazorApp.Service
         private readonly IFileRepository _fileRepository;
         private readonly IPermissionService _permissionService;
         private readonly string _uploadPath;
-        public FileService(IFileRepository fileRepository, IWebHostEnvironment environment,IPermissionService permissionService)
+        public FileService(IFileRepository fileRepository, IWebHostEnvironment environment, IPermissionService permissionService)
         {
             _fileRepository = fileRepository;
             _permissionService = permissionService;
@@ -26,8 +26,9 @@ namespace SchoolNewspaperBlazorApp.Service
         }
         public async Task<int> UploadImage(IBrowserFile file)
         {
-            bool hasPermission = await _permissionService.HasPermissionAsync(EnumPermissions.AddFile);
-            if (!hasPermission)
+            bool hasPermission = await _permissionService.HasPermissionAsync(EnumPermissions.AddArticle);
+            bool isMaster = await _permissionService.HasPermissionAsync(EnumPermissions.Master);
+            if (!hasPermission )
             {
                 throw new Exception("Brak uprawnien!");
             }
