@@ -3,55 +3,114 @@
 @using SchoolNewspaperBlazorApp.Interfaces.Service
 @implements IDisposable
 @inject INotificationService _notifyService
-@if(currentNotification != null){
-<div class="notification-window">
-        <h1>@currentNotification.Message</h1>
-        
-</div>
+
+@if (currentNotification is not null)
+{
+    <div class="eti-notification-container">
+        <div class="eti-notification @GetNotificationClass()"
+             role="alert"
+             aria-live="assertive">
+
+            <div class="eti-notification__icon">
+                @if (currentNotification.Type == EnumNotificationType.Succes)
+                {
+                    <span>✓</span>
+                }
+                else
+                {
+                    <span>!</span>
+                }
+            </div>
+
+            <div class="eti-notification__content">
+                <span class="eti-notification__title">
+                    @(currentNotification.Type == EnumNotificationType.Succes
+                        ? "Sukces"
+                        : "Wystąpił problem")
+                </span>
+
+                <p class="eti-notification__message">
+                    @currentNotification.Message
+                </p>
+            </div>
+
+            <button type="button"
+                    class="eti-notification__close"
+                    aria-label="Zamknij powiadomienie"
+                    @onclick="CloseNotification">
+                ×
+            </button>
+
+            <div class="eti-notification__progress"></div>
+        </div>
+    </div>
 }
+
 @code {
-    private NotificationMessage currentNotification;
+    private NotificationMessage? currentNotification;
     private bool isProcessing;
+    private bool disposed;
+
     protected override void OnInitialized()
     {
         _notifyService.OnChange += HandleChange;
     }
+
     private void HandleChange()
     {
-        _ = InvokeAsync(ProcessQueueAsync);    
+        _ = InvokeAsync(ProcessQueueAsync);
     }
+
     private async Task ProcessQueueAsync()
     {
-        if (isProcessing)
+        if (isProcessing || disposed)
             return;
+
         isProcessing = true;
+
         try
         {
-            while (_notifyService.TryDequeue(out var notification))
+            while (!disposed &&
+                   _notifyService.TryDequeue(out var notification))
             {
                 currentNotification = notification;
                 StateHasChanged();
-                await Task.Delay(3000);
+
+                await Task.Delay(4000);
+
+                if (disposed)
+                    return;
+
                 currentNotification = null;
                 StateHasChanged();
             }
         }
+        catch (ObjectDisposedException)
+        {
+            // Komponent został już zamknięty.
+        }
         finally
         {
-            isProcessing = false;   
-        }
-        if(_notifyService.TryDequeue(out var next))
-        {
-            currentNotification = next;
-            StateHasChanged();
-            await Task.Delay(3000);
-            currentNotification = null;
-            StateHasChanged();
-            await ProcessQueueAsync();
+            isProcessing = false;
         }
     }
+
+    private string GetNotificationClass()
+    {
+        return currentNotification?.Type == EnumNotificationType.Succes
+            ? "eti-notification--success"
+            : "eti-notification--error";
+    }
+
+    private void CloseNotification()
+    {
+        currentNotification = null;
+        StateHasChanged();
+    }
+
     public void Dispose()
     {
+        disposed = true;
         _notifyService.OnChange -= HandleChange;
     }
 }

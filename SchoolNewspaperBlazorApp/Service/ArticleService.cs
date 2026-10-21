@@ -23,7 +23,7 @@ namespace SchoolNewspaperBlazorApp.Service
             bool hasPermission = await _permissionService.HasPermissionAsync(EnumPermissions.AddArticle);
             if (!hasPermission)
             {
-                _notificationService.Show("Brak uprawnień!", EnumNotificationType.Faliure);
+                _notificationService.Show("Brak uprawnień!", EnumNotificationType.Error);
                 return;
             }
             var article = new Article
@@ -50,7 +50,7 @@ namespace SchoolNewspaperBlazorApp.Service
             bool hasPermission = await _permissionService.HasPermissionAsync(EnumPermissions.EditArticle);
             if (!hasPermission)
             {
-                _notificationService.Show("Brak uprawnień!", EnumNotificationType.Faliure);
+                _notificationService.Show("Brak uprawnień!", EnumNotificationType.Error);
                 return;
             }
             var article = new Article
@@ -89,7 +89,7 @@ namespace SchoolNewspaperBlazorApp.Service
             bool hasPermission = await _permissionService.HasPermissionAsync(EnumPermissions.DeleteArticle);
             if (!hasPermission)
             {
-                _notificationService.Show("Brak uprawnień!", EnumNotificationType.Faliure);
+                _notificationService.Show("Brak uprawnień!", EnumNotificationType.Error);
                 return false ;
             }
             if (id > 0)

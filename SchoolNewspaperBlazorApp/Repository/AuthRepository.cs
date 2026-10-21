@@ -12,40 +12,48 @@ namespace SchoolNewspaperBlazorApp.Repository
         {
             _contextFactory = contextFactory;
         }
-        public async Task<Dictionary<int,string>> GetAllUsersAsync()
+        public async Task<Dictionary<int, string>> GetAllUsersAsync()
         {
             await using var _context = await _contextFactory.CreateDbContextAsync();
             return await _context.Users
                 .ToDictionaryAsync(u => u.Id, u => u.Email);
         }
         public async Task<bool> AddUserAsync(User user)
-{
-    await using var _context = await _contextFactory.CreateDbContextAsync();
-
-    try
-    {
-        if (await _context.Users.AnyAsync(u => u.Email == user.Email))
         {
-            return false;
+            await using var _context = await _contextFactory.CreateDbContextAsync();
+
+            try
+            {
+                // Sprawdzenie, czy hasło nie jest puste
+                if (string.IsNullOrWhiteSpace(user.Password))
+                {
+                    return false;
+
+                }
+
+                // Sprawdzenie, czy użytkownik o tym emailu już istnieje
+                if (await _context.Users.AnyAsync(u => u.Email == user.Email))
+                {
+                    return false;
+                }
+
+                await _context.Users.AddAsync(user);
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
-
-        await _context.Users.AddAsync(user);
-        await _context.SaveChangesAsync();
-
-        return true;
-    }
-    catch (Exception)
-    {
-        return false;
-    }
-}
         public async Task<User> CheckIfRegisteredAsync(string login)
         {
             await using var _context = await _contextFactory.CreateDbContextAsync();
 
             var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.Email == login);
-            if(user != null)
+            if (user != null)
             {
                 return user;
             }
@@ -56,4 +64,4 @@ namespace SchoolNewspaperBlazorApp.Repository
         }
     }
 }
-    
+

@@ -2094,3 +2094,240 @@ textarea.form-control {
         transition-duration: .01ms !important;
     }
 }
+/* ==========================================
+   ETI — POWIADOMIENIA TOAST
+   ========================================== */
+
+.eti-notification-container {
+    position: fixed !important;
+    top: 24px !important;
+    right: 24px !important;
+    z-index: 99999 !important;
+    width: min(420px, calc(100vw - 32px));
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+}
+
+.eti-notification {
+    --notification-accent: var(--eti-blue, #183a68);
+    --notification-icon-bg: #edf2f9;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    width: 100%;
+    min-width: 0;
+    padding: 21px 45px 24px 20px;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid var(--eti-border, #dde3ec);
+    border-left: 5px solid var(--notification-accent);
+    border-radius: 17px;
+    box-shadow: 0 5px 0 var(--eti-tint-strong, #e8ecf3), 0 15px 40px rgba(24, 58, 104, 0.16);
+    color: var(--eti-text, #1d2a3d);
+    pointer-events: auto;
+    animation: eti-notification-enter 0.4s cubic-bezier(.2, .75, .25, 1) both;
+}
+
+/* Sukces */
+
+.eti-notification--success {
+    --notification-accent: #1ca779;
+    --notification-icon-bg: #e6f7ef;
+}
+
+/* Błąd */
+
+.eti-notification--error {
+    --notification-accent: #a52c38;
+    --notification-icon-bg: #fff0f1;
+}
+
+/* Ikona */
+
+.eti-notification__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 43px;
+    width: 43px;
+    height: 43px;
+    border: 1px solid var(--notification-accent);
+    border-radius: 13px;
+    background: var(--notification-icon-bg);
+    color: var(--notification-accent);
+    font-size: 24px;
+    font-weight: 900;
+    line-height: 1;
+    box-shadow: 0 3px 0 rgba(24, 58, 104, 0.06);
+}
+
+/* Treść */
+
+.eti-notification__content {
+    flex: 1;
+    min-width: 0;
+    padding-top: 1px;
+}
+
+.eti-notification__title {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--notification-accent);
+    font-size: 14px;
+    font-weight: 900;
+    line-height: 1.4;
+    letter-spacing: 0.2px;
+}
+
+.eti-notification__message {
+    margin: 0;
+    color: var(--eti-text, #1d2a3d);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+/* Przycisk zamknięcia */
+
+.eti-notification__close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--eti-muted, #6b778a);
+    font-family: Arial, sans-serif;
+    font-size: 23px;
+    font-weight: 400;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+    .eti-notification__close:hover {
+        background: var(--eti-tint, #f3f5f9);
+        border-color: var(--eti-border, #dde3ec);
+        color: var(--eti-blue, #183a68);
+    }
+
+/* Pasek czasu */
+
+.eti-notification__progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--notification-accent);
+    transform-origin: left;
+    animation: eti-notification-progress 4s linear both;
+}
+
+/* Animacje */
+
+@keyframes eti-notification-enter {
+    from {
+        opacity: 0;
+        transform: translateX(35px) translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0) translateY(0);
+    }
+}
+
+@keyframes eti-notification-progress {
+    from {
+        transform: scaleX(1);
+    }
+
+    to {
+        transform: scaleX(0);
+    }
+}
+
+/* Telefony */
+
+@media (max-width: 600px) {
+    .eti-notification-container {
+        top: 12px !important;
+        right: 12px !important;
+        width: calc(100vw - 24px);
+    }
+
+    .eti-notification {
+        gap: 12px;
+        padding: 17px 40px 21px 15px;
+        border-radius: 14px;
+    }
+
+    .eti-notification__icon {
+        flex-basis: 38px;
+        width: 38px;
+        height: 38px;
+        font-size: 21px;
+    }
+
+    .eti-notification__message {
+        font-size: 12px;
+    }
+}
+
+/* Ograniczenie animacji dla użytkowników, którzy go potrzebują */
+
+@media (prefers-reduced-motion: reduce) {
+    .eti-notification {
+        animation: none;
+    }
+
+    .eti-notification__progress {
+        animation: none;
+    }
+}
+.eti-notification {
+    background: #ffffff;
+    color: #1d2a3d;
+    border: 1px solid #dde3ec;
+    border-left: 5px solid var(--notification-accent, #183a68);
+}
+
+.eti-notification__title {
+    color: var(--notification-accent, #183a68);
+}
+
+.eti-notification__message {
+    color: #1d2a3d;
+}
+
+/* Błąd — elegancki pomarańczowy */
+
+.eti-notification--error {
+    --notification-accent: #e58a24;
+    --notification-icon-bg: #fff3e2;
+}
+
+    .eti-notification--error .eti-notification__icon {
+        border-color: #f0c58e;
+        background: #fff3e2;
+        color: #c87516;
+    }
+
+    .eti-notification--error .eti-notification__title {
+        color: #c87516;
+    }
+
+    .eti-notification--error .eti-notification__progress {
+        background: #e58a24;
+    }
