@@ -18,12 +18,19 @@ namespace SchoolNewspaperBlazorApp.Repository
             return await _context.Users
                 .ToDictionaryAsync(u => u.Id, u => u.Email);
         }
-        public async Task AddUserAsync(User user)
+        public async Task<bool> AddUserAsync(User user)
         {
             await using var _context = await _contextFactory.CreateDbContextAsync();
-
-            await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.Users.AddAsync(user);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
         public async Task<User> CheckIfRegisteredAsync(string login)
         {

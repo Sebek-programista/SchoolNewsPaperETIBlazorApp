@@ -12,10 +12,12 @@ namespace SchoolNewspaperBlazorApp.Service
     {
         private readonly IAuthRepository _authRepository;
         private readonly IPermissionService _permissionService;
-        public AuthService(IAuthRepository authRepository, IPermissionService permissionService)
+        private readonly INotificationService _notificationService;
+        public AuthService(IAuthRepository authRepository, IPermissionService permissionService, INotificationService notificationService)
         {
             _authRepository = authRepository;
             _permissionService = permissionService;
+            _notificationService = notificationService;
         }
         public async Task<Dictionary<int,string>> GetAllUsersAsync()
         {
@@ -23,8 +25,12 @@ namespace SchoolNewspaperBlazorApp.Service
         }
         public async Task AddUserAsync(string login, string password, string email)
         {
-            //bool hasPermission = await _permissionService.HasPermissionAsync(EnumPermissions.AddUser);
-            //if (!hasPermission) return;
+            bool hasPermission = await _permissionService.HasPermissionAsync(EnumPermissions.AddUser);
+            if (!hasPermission)
+            {
+                _notificationService.Show("Brak uprawnień!", EnumNotificationType.Faliure);
+                return;
+            }
             var hasher = new PasswordHasher<string>();
             string passwordHash = hasher.HashPassword(null!, password);
             var auth = new User
@@ -34,7 +40,15 @@ namespace SchoolNewspaperBlazorApp.Service
                Email = email,
                RegisterDate = DateTime.Now
             };
-            await _authRepository.AddUserAsync(auth);
+            var succes = await _authRepository.AddUserAsync(auth);
+            if (succes)
+            {
+                _notificationService.Show("Pomyslnie dodano uzytkownika!", EnumNotificationType.Succes);
+            }
+            else
+            {
+                _notificationService.Show("Podczas dodawania uzytkownika wystąpił błąd! Skontaktuj sie z obslugą techniczną", EnumNotificationType.Faliure);
+            }
         }
         public async Task<int> CheckIfRegisteredAsync(string login,string password)
         {

@@ -1,7 +1,9 @@
 ﻿@using SchoolNewspaperBlazorApp.Data
+@using SchoolNewspaperBlazorApp.Data.Emuns
 @using SchoolNewspaperBlazorApp.Interfaces.Service
 @inject IArticleService articleService
 @inject IFileService fileService
+@inject INotificationService notificationService
 
 <div class="add-article-form">
     <h1 class="add-article-form__title">Dodaj artykuł</h1>
@@ -56,7 +58,7 @@
     {
         if(!IsEdit && file == null)
         {
-            errorMessage = "Dodajac artykuł musisz dodac zdjecie!";
+            notificationService.Show("NIe można dodać artykułu bez zdjecia", EnumNotificationType.Faliure);
             return;
         }
         int id = 0;

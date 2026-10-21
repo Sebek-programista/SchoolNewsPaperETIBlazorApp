@@ -7,7 +7,7 @@ namespace SchoolNewspaperBlazorApp.Interfaces.Repository
         Task<bool> AddArticleAsync(Article article);
         Task<List<Article>> GetAllArticlesAsync();
         Task<Article> GetArticleByIdAsync(int id);
-        Task RemoveArticleByIdAsync(int id);
-        Task UpdateArticleByIdAsync(Article article);
+        Task<bool> RemoveArticleByIdAsync(int id);
+        Task<bool> UpdateArticleByIdAsync(Article article);
     }
 }

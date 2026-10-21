@@ -48,7 +48,11 @@ namespace SchoolNewspaperBlazorApp.Service
         public async Task UpdateArticleByIdAsync(int id,string title,string text,string author, int fileId)
         {
             bool hasPermission = await _permissionService.HasPermissionAsync(EnumPermissions.EditArticle);
-            if (!hasPermission) return;
+            if (!hasPermission)
+            {
+                _notificationService.Show("Brak uprawnień!", EnumNotificationType.Faliure);
+                return;
+            }
             var article = new Article
             {
                 Id = id,
@@ -57,7 +61,15 @@ namespace SchoolNewspaperBlazorApp.Service
                 Author = author,
                 FileId = fileId
             };
-            await _articleRepository.UpdateArticleByIdAsync(article);
+            var succes = await _articleRepository.UpdateArticleByIdAsync(article);
+            if (succes)
+            {
+                _notificationService.Show("Pomyslnie edytowano artykuł!", EnumNotificationType.Succes);
+            }
+            else
+            {
+                _notificationService.Show("Podczas edytowania artykułu wystąpił błąd! Skontaktuj sie z obslugą techniczną", EnumNotificationType.Faliure);
+            }
         }
         public async Task<List<Article>> GetAllArticlesAsync()
         {
@@ -75,11 +87,17 @@ namespace SchoolNewspaperBlazorApp.Service
         public async Task<bool> RemoveArticleByIdAsync(int id)
         {
             bool hasPermission = await _permissionService.HasPermissionAsync(EnumPermissions.DeleteArticle);
-            if (!hasPermission) return false;
+            if (!hasPermission)
+            {
+                _notificationService.Show("Brak uprawnień!", EnumNotificationType.Faliure);
+                return false ;
+            }
             if (id > 0)
             {
                  await _articleRepository.RemoveArticleByIdAsync(id);
+                _notificationService.Show("Pomyslnie usunięto artykuł!", EnumNotificationType.Succes);
             }
+            _notificationService.Show("Podczas usuwania artykułu wystąpił błąd! Skontaktuj sie z obslugą techniczną", EnumNotificationType.Faliure);
             return true;
         }
     }
