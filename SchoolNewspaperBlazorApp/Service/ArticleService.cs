@@ -11,15 +11,21 @@ namespace SchoolNewspaperBlazorApp.Service
     {
         private readonly IArticleRepository _articleRepository;
         private readonly IPermissionService _permissionService;
-        public ArticleService(IArticleRepository articleRepository, IPermissionService permissionService)
+        private readonly INotificationService _notificationService;
+        public ArticleService(IArticleRepository articleRepository, IPermissionService permissionService, INotificationService notificationService)
         {
             _articleRepository = articleRepository;
             _permissionService = permissionService;
+            _notificationService = notificationService;
         }
         public async Task AddArticleAsync(string title, string text, string author,int fileId)
         {
             bool hasPermission = await _permissionService.HasPermissionAsync(EnumPermissions.AddArticle);
-            if (!hasPermission) return;
+            if (!hasPermission)
+            {
+                _notificationService.Show("Brak uprawnień!", EnumNotificationType.Faliure);
+                return;
+            }
             var article = new Article
             {
                 Title = title,
@@ -28,7 +34,16 @@ namespace SchoolNewspaperBlazorApp.Service
                 PublishDate = DateTime.Now,
                 FileId = fileId
             };
-            await _articleRepository.AddArticleAsync(article);
+            var succes = await _articleRepository.AddArticleAsync(article);
+            if (succes)
+            {
+                _notificationService.Show("Pomyslnie dodano artykuł!", EnumNotificationType.Succes);
+            }
+            else 
+            {
+                _notificationService.Show("Podczas dodawania artykułu wystąpił błąd! Skontaktuj sie z obslugą techniczną", EnumNotificationType.Faliure);
+            }
+            
         }
         public async Task UpdateArticleByIdAsync(int id,string title,string text,string author, int fileId)
         {

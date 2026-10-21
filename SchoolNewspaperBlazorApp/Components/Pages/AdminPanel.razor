@@ -1,10 +1,12 @@
 ﻿@page "/adminPanel"
 @rendermode InteractiveServer
 @inject IArticleService articleService
+@inject INotificationService NotifyService
 @attribute [Authorize]
 @using Microsoft.AspNetCore.Authorization
 @using SchoolNewspaperBlazorApp.Components.Components
 @using SchoolNewspaperBlazorApp.Data
+@using SchoolNewspaperBlazorApp.Data.Emuns
 @using SchoolNewspaperBlazorApp.Interfaces.Service
 <div class="admin-page">
 
@@ -273,6 +275,8 @@
     </div>
 
 @code {
+    [SupplyParameterFromQuery(Name = "notification")]
+    public string? Notification { get; set; }
     [Inject]
     public IPermissionService permissionService { get; set; }
     public int view = 0;
@@ -285,7 +289,16 @@
     {
         Permissions = await permissionService.GetAllPermissionsAsync();
     }
-
+    protected override void OnParametersSet()
+    {
+        if (Notification == "login")
+        {
+            NotifyService.Show(
+            "Logowanie powiodło się!",
+            EnumNotificationType.Succes
+            );
+        }
+    }
     public void SetView(int view)
     {
         this.view = view;

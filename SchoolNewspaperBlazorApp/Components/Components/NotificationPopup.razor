@@ -1,10 +1,57 @@
-﻿@using SchoolNewspaperBlazorApp.Data.Emuns
+﻿@using SchoolNewspaperBlazorApp.Data
+@using SchoolNewspaperBlazorApp.Data.Emuns
+@using SchoolNewspaperBlazorApp.Interfaces.Service
+@implements IDisposable
+@inject INotificationService _notifyService
+@if(currentNotification != null){
 <div class="notification-window">
-        <h1>@NotificationMessage</h1>
-        <h3>@NotificationType.ToString()</h3>
+        <h1>@currentNotification.Message</h1>
+        
 </div>
-
+}
 @code {
-    public string? NotificationMessage { get; set; }
-    public EnumNotificationType? NotificationType { get; set; }
+    private NotificationMessage currentNotification;
+    private bool isProcessing;
+    protected override void OnInitialized()
+    {
+        _notifyService.OnChange += HandleChange;
+    }
+    private void HandleChange()
+    {
+        _ = InvokeAsync(ProcessQueueAsync);    
+    }
+    private async Task ProcessQueueAsync()
+    {
+        if (isProcessing)
+            return;
+        isProcessing = true;
+        try
+        {
+            while (_notifyService.TryDequeue(out var notification))
+            {
+                currentNotification = notification;
+                StateHasChanged();
+                await Task.Delay(3000);
+                currentNotification = null;
+                StateHasChanged();
+            }
+        }
+        finally
+        {
+            isProcessing = false;   
+        }
+        if(_notifyService.TryDequeue(out var next))
+        {
+            currentNotification = next;
+            StateHasChanged();
+            await Task.Delay(3000);
+            currentNotification = null;
+            StateHasChanged();
+            await ProcessQueueAsync();
+        }
+    }
+    public void Dispose()
+    {
+        _notifyService.OnChange -= HandleChange;
+    }
 }

@@ -35,6 +35,7 @@ namespace SchoolNewspaperBlazorApp
             builder.Services.AddScoped<IFileService, FileService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IPermissionService, PermissionService>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
 
             builder.Services.AddAuthentication(
                 CookieAuthenticationDefaults.AuthenticationScheme)
@@ -70,7 +71,7 @@ namespace SchoolNewspaperBlazorApp
                 int userId = await authService.CheckIfRegisteredAsync(email, password);
                 if (userId == 0)
                 {
-                    return Results.Redirect("/");
+                    return Results.Redirect("/login?notification-loginError");
                 }
                 var claims = new List<Claim>
                 {
@@ -83,7 +84,7 @@ namespace SchoolNewspaperBlazorApp
                 var principal = new ClaimsPrincipal(identity);
                 await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
                     principal);
-                return Results.Redirect("/adminPanel");
+                return Results.Redirect("/adminPanel?notification=login");
             });
             var imagesPath = Path.Combine(
                 builder.Environment.ContentRootPath,

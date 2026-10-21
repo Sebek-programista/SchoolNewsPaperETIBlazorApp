@@ -1,5 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
+@using SchoolNewspaperBlazorApp.Components.Components
 @inherits LayoutComponentBase
+
+    <NotificationPopup />
 
 <div class="site-shell">
     <header class="site-header">
@@ -115,9 +118,10 @@
         </div>
     </footer>
 </div>
-@code{
+@code {
     [Inject]
     public AuthenticationStateProvider Asp { get; set; }
+    private bool ShowPopup = false;
     private bool IsLoggedIn;
     protected override async Task OnInitializedAsync()
     {

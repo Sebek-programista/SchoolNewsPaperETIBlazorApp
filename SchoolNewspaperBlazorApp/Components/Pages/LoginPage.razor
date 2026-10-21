@@ -1,9 +1,11 @@
 ﻿@page "/login"
 @using Microsoft.AspNetCore.Components.Authorization
+@using SchoolNewspaperBlazorApp.Data.Emuns
 @using SchoolNewspaperBlazorApp.Interfaces.Service
 @rendermode InteractiveServer
 @inject IJSRuntime JS
 @inject NavigationManager nav
+@inject INotificationService NotifyService
 @inject AuthenticationStateProvider _asp;
 <PageTitle>Logowanie | Gazetka ETI</PageTitle>
 
@@ -141,6 +143,8 @@
 
 
 @code {
+    [SupplyParameterFromQuery(Name = "notification")]
+    public string? Notification { get; set; }
     private bool IsLoggedIn;
     protected override async Task OnInitializedAsync()
     {
@@ -151,6 +155,16 @@
         if (IsLoggedIn)
         {
             nav.NavigateTo("/");
+        }
+    }
+    protected override void OnParametersSet()
+    {
+        if (Notification == "loginError")
+        {
+            NotifyService.Show(
+            "Logowanie nie powiodło się!",
+            EnumNotificationType.Faliure
+            );
         }
     }
     }
