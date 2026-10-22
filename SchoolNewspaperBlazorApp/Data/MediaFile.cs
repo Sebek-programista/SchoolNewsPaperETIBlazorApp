@@ -5,6 +5,8 @@
         public int Id { get; set; }
         public required string FileType { get; set; }
         public required string FileName { get; set; }
+        public int ArticleId { get; set; }
+        public bool IsMainimage { get; set; }
 
     }
 }
