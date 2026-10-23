@@ -11,6 +11,7 @@ namespace SchoolNewspaperBlazorApp.Service
     public class AuthService : IAuthService
     {
         private readonly IAuthRepository _authRepository;
+        private readonly ISchoolRoleRepository _schoolRoleRepository;
         private readonly IPermissionService _permissionService;
         private readonly INotificationService _notificationService;
 
@@ -20,10 +21,12 @@ namespace SchoolNewspaperBlazorApp.Service
 
         public AuthService(
             IAuthRepository authRepository,
+            ISchoolRoleRepository schoolRoleRepository,
             IPermissionService permissionService,
             INotificationService notificationService)
         {
             _authRepository = authRepository;
+            _schoolRoleRepository = schoolRoleRepository;
             _permissionService = permissionService;
             _notificationService = notificationService;
         }
@@ -33,12 +36,13 @@ namespace SchoolNewspaperBlazorApp.Service
             return await _authRepository.GetAllUsersAsync();
         }
 
+        // Tworzenie użytkownika z przypisaną rolą szkolną.
         public async Task<bool> AddUserAsync(
             string password,
             string email,
             string name,
             string surname,
-            string role)
+            int? schoolRoleId)
         {
             if (string.IsNullOrWhiteSpace(password))
             {
@@ -49,7 +53,7 @@ namespace SchoolNewspaperBlazorApp.Service
             }
 
             if (string.IsNullOrWhiteSpace(email) ||
-                !EmailRegex.IsMatch(email))
+                !EmailRegex.IsMatch(email.Trim()))
             {
                 _notificationService.Show(
                     "E-mail jest niepoprawny!",
@@ -57,15 +61,9 @@ namespace SchoolNewspaperBlazorApp.Service
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(name) ||
-                string.IsNullOrWhiteSpace(surname) ||
-                string.IsNullOrWhiteSpace(role))
-            {
-                _notificationService.Show(
-                    "Imię, nazwisko i rola są wymagane!",
-                    EnumNotificationType.Failure);
-                return false;
-            }
+            // Zachowujemy parametry imienia i nazwiska,
+            // ponieważ mogą być wykorzystywane w innych formularzach.
+            // Obecny model User nie przechowuje tych pól.
 
             bool hasPermission =
                 await _permissionService.HasPermissionAsync(
@@ -74,12 +72,29 @@ namespace SchoolNewspaperBlazorApp.Service
             if (!hasPermission)
             {
                 _notificationService.Show(
-                    "Brak uprawnień!",
+                    "Brak uprawnień do dodawania użytkowników!",
                     EnumNotificationType.Failure);
                 return false;
             }
 
+            // Jeżeli wybrano rolę, sprawdzamy ją w bazie.
+            if (schoolRoleId.HasValue)
+            {
+                var schoolRole =
+                    await _schoolRoleRepository.GetByIdAsync(
+                        schoolRoleId.Value);
+
+                if (schoolRole == null || !schoolRole.IsActive)
+                {
+                    _notificationService.Show(
+                        "Wybrana rola nie istnieje lub jest nieaktywna!",
+                        EnumNotificationType.Failure);
+                    return false;
+                }
+            }
+
             var hasher = new PasswordHasher<string>();
+
             string passwordHash =
                 hasher.HashPassword(null!, password);
 
@@ -87,8 +102,8 @@ namespace SchoolNewspaperBlazorApp.Service
             {
                 Password = passwordHash,
                 Email = email.Trim(),
-                
-                RegisterDate = DateTime.Now
+                RegisterDate = DateTime.Now,
+                SchoolRoleId = schoolRoleId
             };
 
             bool success =
@@ -110,15 +125,17 @@ namespace SchoolNewspaperBlazorApp.Service
             return success;
         }
 
-        // Wariant zgodny z formularzami, które przekazują tylko e-mail i hasło.
-        public async Task AddUserAsync(string password, string email)
+        // Zachowanie kompatybilności ze starszymi formularzami.
+        public async Task AddUserAsync(
+            string password,
+            string email)
         {
             await AddUserAsync(
                 password,
                 email,
                 string.Empty,
                 string.Empty,
-                string.Empty);
+                null);
         }
 
         public async Task<int> CheckIfRegisteredAsync(

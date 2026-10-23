@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.WebSockets;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using SchoolNewspaperBlazorApp.Components;
@@ -31,6 +32,7 @@ namespace SchoolNewspaperBlazorApp
             builder.Services.AddScoped<IAuthRepository, AuthRepository>();
             builder.Services.AddScoped<IFileRepository, FileRepository>();
             builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
+            builder.Services.AddScoped<ISchoolRoleRepository, SchoolRoleRepository>();
 
             //Services
             builder.Services.AddScoped<IArticleService, ArticleService>();
@@ -38,6 +40,7 @@ namespace SchoolNewspaperBlazorApp
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IPermissionService, PermissionService>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
+            builder.Services.AddScoped<ISchoolRoleService, SchoolRoleService>();
 
             builder.Services.AddAuthentication(
                 CookieAuthenticationDefaults.AuthenticationScheme)
