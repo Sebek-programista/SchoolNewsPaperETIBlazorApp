@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components.Forms;
+﻿
+using Microsoft.AspNetCore.Components.Forms;
 using SchoolNewspaperBlazorApp.Data;
 using SchoolNewspaperBlazorApp.Data.Enums;
 using SchoolNewspaperBlazorApp.Interfaces.Repository;
@@ -12,75 +13,139 @@ namespace SchoolNewspaperBlazorApp.Service
         private readonly IPermissionService _permissionService;
         private readonly INotificationService _notificationService;
         private readonly string _uploadPath;
-        public FileService(IFileRepository fileRepository, IWebHostEnvironment environment,IPermissionService permissionService,INotificationService notificationService)
+
+        private const long MaxFileSize = 5 * 1024 * 1024;
+
+        private static readonly HashSet<string> AllowedExtensions =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                ".jpg",
+                ".jpeg",
+                ".png",
+                ".webp"
+            };
+
+        public FileService(
+            IFileRepository fileRepository,
+            IWebHostEnvironment environment,
+            IPermissionService permissionService,
+            INotificationService notificationService)
         {
             _fileRepository = fileRepository;
             _permissionService = permissionService;
             _notificationService = notificationService;
-            _uploadPath = Path.Combine(environment.ContentRootPath, "Images");
+
+            _uploadPath = Path.Combine(
+                environment.ContentRootPath,
+                "Images");
         }
+
         public async Task<string> GetPreviewAsync(IBrowserFile file)
         {
-            using var stream = file.OpenReadStream(5 * 1024 * 1024);
+            if (file.Size > MaxFileSize)
+            {
+                throw new InvalidOperationException(
+                    "Maksymalny rozmiar zdjęcia to 5 MB.");
+            }
+
+            using var stream = file.OpenReadStream(MaxFileSize);
             using var memoryStream = new MemoryStream();
+
             await stream.CopyToAsync(memoryStream);
-            byte[] bytes = memoryStream.ToArray();
-            return $"data:{file.ContentType};base64,{Convert.ToBase64String(bytes)}";
+
+            return $"data:{file.ContentType};base64," +
+                   Convert.ToBase64String(memoryStream.ToArray());
         }
-        public async Task<int> UploadImage(IBrowserFile file,int? ArticleId = null)
+
+        public async Task<int> UploadImage(
+            IBrowserFile file,
+            int? ArticleId = null)
         {
-            bool hasPermission = await _permissionService.HasPermissionAsync(EnumPermissions.AddArticle);
+            bool hasPermission =
+                await _permissionService.HasPermissionAsync(
+                    EnumPermissions.AddArticle);
+
             if (!hasPermission)
             {
-                _notificationService.Show("Brak uprawnien!",EnumNotificationType.Failure);
-                throw new Exception("Brak uprawnien!");
+                _notificationService.Show(
+                    "Brak uprawnień!",
+                    EnumNotificationType.Failure);
+
+                throw new UnauthorizedAccessException(
+                    "Brak uprawnień do dodawania zdjęć.");
             }
-            //Tworzenie folderu
-            Directory.CreateDirectory(_uploadPath);
-            //Pobieranie extension z pliku czyli np .png
+
+            if (file.Size <= 0 || file.Size > MaxFileSize)
+            {
+                throw new InvalidOperationException(
+                    "Plik jest pusty lub przekracza limit 5 MB.");
+            }
+
             string extension = Path.GetExtension(file.Name);
-            //Generowanie nazwy + extension np. plik.png
+
+            if (!AllowedExtensions.Contains(extension))
+            {
+                throw new InvalidOperationException(
+                    "Dozwolone formaty zdjęć: JPG, JPEG, PNG i WEBP.");
+            }
+
+            Directory.CreateDirectory(_uploadPath);
+
             string fileName = $"{Guid.NewGuid()}{extension}";
-            // łaczenie uploadPath i fileName C:\Users\Praktyka\source\repos\SchoolNewspaperBlazorApp\Images\plik.png
             string fullPath = Path.Combine(_uploadPath, fileName);
 
-            using var stream = file.OpenReadStream(5 * 1024 * 1024);
-            using var fileStream = new FileStream(
-                fullPath, //pelny link odnosnika
-                FileMode.Create //ustawienie tworzenia
-                );
-            await stream.CopyToAsync(fileStream);
-            var id = await _fileRepository.GetLastFileId();
-            var mediaFile = new MediaFile
+            try
             {
-                Id = id,
-                FileName = fileName,
-                FileType = extension,
-                ArticleId = ArticleId,
-                IsMainImage = ArticleId == null 
-            };
-            await _fileRepository.AddFileAsync(mediaFile);
+                await using (var stream =
+                    file.OpenReadStream(MaxFileSize))
+                await using (var fileStream = new FileStream(
+                    fullPath,
+                    FileMode.CreateNew,
+                    FileAccess.Write,
+                    FileShare.None))
+                {
+                    await stream.CopyToAsync(fileStream);
+                }
 
-            return id;
+                var mediaFile = new MediaFile
+                {
+                    FileName = fileName,
+                    FileType = extension,
+                    ArticleId = ArticleId,
+                    IsMainImage = ArticleId == null
+                };
 
+                await _fileRepository.AddFileAsync(mediaFile);
+
+                return mediaFile.Id;
+            }
+            catch
+            {
+                if (File.Exists(fullPath))
+                {
+                    File.Delete(fullPath);
+                }
+
+                throw;
+            }
         }
+
         public async Task<string> GetFileNameByIdAsync(int id)
         {
             var file = await _fileRepository.GetFileByIdAsync(id);
+
             return file.FileName;
         }
-        public async Task<List<string>> GetImagesByArticleIdAsync(int articleId)
+
+        public async Task<List<string>> GetImagesByArticleIdAsync(
+            int articleId)
         {
-            var files = await _fileRepository.GetFilesByArticleIdAsync(articleId);
+            var files =
+                await _fileRepository.GetFilesByArticleIdAsync(articleId);
 
-            var images = new List<string>();
-
-            foreach (var file in files)
-            {
-                images.Add($"/Images/{file.FileName}");
-            }
-
-            return images;
+            return files
+                .Select(file => $"/Images/{file.FileName}")
+                .ToList();
         }
     }
 }

@@ -7,5 +7,9 @@
         public required string Email { get; set; }
         public required DateTime RegisterDate { get; set; }
         public ICollection<UserPermission> UserPermissions { get; set; } = new List<UserPermission>();
+
+        public int? SchoolRoleId { get; set; }
+
+        public SchoolRole? SchoolRole { get; set; }
     }
 }

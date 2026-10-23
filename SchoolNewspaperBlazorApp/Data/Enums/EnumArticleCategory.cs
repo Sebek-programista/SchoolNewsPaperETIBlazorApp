@@ -2,8 +2,12 @@
 {
     public enum EnumArticleCategory
     {
-        Nowosci = 1,
-        Wydarzenia = 2,
-        Ogloszenia = 3
+        Announcments = 1,
+        Substitute = 2,
+        Events = 3,
+        Competitions = 4,
+        Admisions = 5,
+        Exams = 6,
+        StudentCouncil = 7
     }
 }

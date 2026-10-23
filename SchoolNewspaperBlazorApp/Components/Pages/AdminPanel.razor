@@ -1,13 +1,20 @@
-﻿@page "/adminPanel"
+﻿
+@page "/adminPanel"
 @rendermode InteractiveServer
-@inject IArticleService articleService
-@inject INotificationService NotifyService
-@attribute [Authorize]
+
 @using Microsoft.AspNetCore.Authorization
 @using SchoolNewspaperBlazorApp.Components.Components
 @using SchoolNewspaperBlazorApp.Data
 @using SchoolNewspaperBlazorApp.Data.Enums
 @using SchoolNewspaperBlazorApp.Interfaces.Service
+
+@inject IArticleService articleService
+@inject INotificationService NotifyService
+@inject IPermissionService permissionService
+@inject IAuthService authService
+
+@attribute [Authorize]
+
 <div class="admin-page">
 
     <section class="admin-header">
@@ -41,106 +48,129 @@
                 <span class="admin-section-heading__eyebrow">
                     MENU GŁÓWNE
                 </span>
+
                 <h2>Co chcesz zrobić?</h2>
+
                 <p>Wybierz jedną z dostępnych funkcji panelu.</p>
             </div>
         </div>
 
         <div class="admin-actions">
-            @if (Permissions[EnumPermissions.EditArticle] || Permissions[EnumPermissions.Master])
+
+            @if (CanEditArticles)
             {
-            <button type="button"
-                    class="admin-action"
-                    @onclick="LoadArticleAsync">
+                <button type="button"
+                        class="admin-action"
+                        @onclick="LoadArticleAsync">
 
-                <span class="admin-action__icon">▤</span>
+                    <span class="admin-action__icon">▤</span>
+                    <span class="admin-action__number">01</span>
 
-                <span class="admin-action__number">01</span>
+                    <strong>Panel artykułów</strong>
 
-                <strong>Panel artykułów</strong>
+                    <span class="admin-action__description">
+                        Przeglądaj publikacje i zarządzaj artykułami.
+                    </span>
 
-                <span class="admin-action__description">
-                    Przeglądaj publikacje i zarządzaj istniejącymi artykułami.
-                </span>
-
-                <span class="admin-action__footer">
-                    Otwórz artykuły <span>→</span>
-                </span>
-            </button>
+                    <span class="admin-action__footer">
+                        Otwórz artykuły <span>→</span>
+                    </span>
+                </button>
             }
-            @if (Permissions[EnumPermissions.AddArticle] || Permissions[EnumPermissions.Master])
+
+            @if (CanAddArticles)
             {
-            <button type="button"
-                    class="admin-action"
-                    @onclick="() => SetView(2)">
+                <button type="button"
+                        class="admin-action"
+                        @onclick="StartAddingArticle">
 
-                <span class="admin-action__icon">✎</span>
+                    <span class="admin-action__icon">✎</span>
+                    <span class="admin-action__number">02</span>
 
-                <span class="admin-action__number">02</span>
+                    <strong>Dodaj artykuł</strong>
 
-                <strong>Dodaj artykuł</strong>
+                    <span class="admin-action__description">
+                        Wybierz kategorię i utwórz nową publikację.
+                    </span>
 
-                <span class="admin-action__description">
-                    Przygotuj nową publikację i dodaj ją do gazetki szkolnej.
-                </span>
-
-                <span class="admin-action__footer">
-                    Utwórz artykuł <span>→</span>
-                </span>
-            </button>
+                    <span class="admin-action__footer">
+                        Utwórz artykuł <span>→</span>
+                    </span>
+                </button>
             }
-            @if (Permissions[EnumPermissions.AddUser] || Permissions[EnumPermissions.Master])
-            { 
-            <button type="button"
-                    class="admin-action"
-                    @onclick="() => SetView(3)">
 
-                <span class="admin-action__icon">♙</span>
+            @if (Permissions[EnumPermissions.AddUser] ||
+                 Permissions[EnumPermissions.Master])
+            {
+                <button type="button"
+                        class="admin-action"
+                        @onclick="() => SetView(3)">
 
-                <span class="admin-action__number">03</span>
+                    <span class="admin-action__icon">♙</span>
+                    <span class="admin-action__number">03</span>
 
-                <strong>Dodaj użytkownika</strong>
+                    <strong>Dodaj użytkownika</strong>
 
-                <span class="admin-action__description">
-                    Dodaj konto użytkownika do systemu gazetki.
-                </span>
+                    <span class="admin-action__description">
+                        Utwórz konto użytkownika.
+                    </span>
 
-                <span class="admin-action__footer">
-                    Dodaj konto <span>→</span>
-                </span>
-            </button>
-            } 
+                    <span class="admin-action__footer">
+                        Dodaj konto <span>→</span>
+                    </span>
+                </button>
+            }
+
             @if (Permissions[EnumPermissions.Master])
             {
                 <button type="button"
-                class="admin-action"
-                    @onclick="() => SetView(5)">
+                        class="admin-action"
+                        @onclick="() => SetView(5)">
 
-                <span class="admin-action__icon">✎</span>
+                    <span class="admin-action__icon">⚙</span>
+                    <span class="admin-action__number">04</span>
 
-                <span class="admin-action__number">04</span>
+                    <strong>Nadaj uprawnienia</strong>
 
-                <strong>Nadaj uprawnienia</strong>
+                    <span class="admin-action__description">
+                        Zarządzaj uprawnieniami użytkowników.
+                    </span>
 
-                <span class="admin-action__description">
-                    Ustaw uprawniena użytkownikowi.
-                </span>
+                    <span class="admin-action__footer">
+                        Nadaj uprawnienia <span>→</span>
+                    </span>
+                </button>
 
-                <span class="admin-action__footer">
-                    Nadaj uprawnienia <span>→</span>
-                </span>
-            </button>
+                <button type="button"
+                        class="admin-action"
+                        @onclick="LoadUsersAsync">
+
+                    <span class="admin-action__icon">♙</span>
+                    <span class="admin-action__number">05</span>
+
+                    <strong>Usuń użytkownika</strong>
+
+                    <span class="admin-action__description">
+                        Zarządzaj kontami i usuwaj użytkowników.
+                    </span>
+
+                    <span class="admin-action__footer">
+                        Zarządzaj kontami <span>→</span>
+                    </span>
+                </button>
             }
-
         </div>
 
         <section class="admin-section">
             <div class="admin-section__title-row">
                 <span class="admin-section__symbol">✦</span>
+
                 <div>
                     <h2>Witaj w centrum zarządzania</h2>
+
                     <p>
-                        Wybierz odpowiednią kartę powyżej, aby rozpocząć pracę.
+                        Wybierz odpowiednią kartę powyżej,
+                        aby rozpocząć pracę.
                     </p>
                 </div>
             </div>
@@ -151,29 +181,39 @@
         <div class="admin-back-row">
             <button type="button"
                     class="admin-back-button"
-                    @onclick="() => SetView(0)">
+                    @onclick="BackToDashboard">
+
                 <span>←</span> Wróć do panelu
             </button>
 
             <div class="admin-current-view">
                 <span class="site-status__dot"></span>
 
-                @if (view == 1)
+                @switch (view)
                 {
-                    <span>Zarządzanie artykułami</span>
-                }
-                else if (view == 2)
-                {
-                    <span>Tworzenie artykułu</span>
-                }
-                else if (view == 3)
-                {
-                    <span>Dodawanie użytkownika</span>
-                }
-                else if(view == 5)
-                {
-                    <span>Nadawanie uprawnien</span>
+                    case 1:
+                        <span>Zarządzanie artykułami</span>
+                        break;
 
+                    case 2:
+                        <span>Tworzenie artykułu</span>
+                        break;
+
+                    case 3:
+                        <span>Dodawanie użytkownika</span>
+                        break;
+
+                    case 4:
+                        <span>Edycja artykułu</span>
+                        break;
+
+                    case 5:
+                        <span>Nadawanie uprawnień</span>
+                        break;
+
+                    case 6:
+                        <span>Usuwanie użytkowników</span>
+                        break;
                 }
             </div>
         </div>
@@ -186,41 +226,51 @@
                         <span class="admin-section-heading__eyebrow">
                             PUBLIKACJE
                         </span>
+
                         <h2>Panel artykułów</h2>
-                        <p>Zarządzaj artykułami opublikowanymi w gazetce.</p>
+
+                        <p>
+                            Zarządzaj artykułami opublikowanymi w gazetce.
+                        </p>
                     </div>
 
-                    <button type="button"
-                            class="admin-small-button"
-                            @onclick="() => SetView(2)">
-                        + Dodaj artykuł
-                    </button>
+                    @if (CanAddArticles)
+                    {
+                        <button type="button"
+                                class="admin-small-button"
+                                @onclick="StartAddingArticle">
+                            + Dodaj artykuł
+                        </button>
+                    }
                 </div>
 
                 @if (articleList.Count == 0)
                 {
                     <div class="admin-empty-state">
                         <span class="admin-empty-state__icon">▤</span>
-                        <h3>Brak artykułów</h3>
-                        <p>
-                            Nie znaleziono publikacji. Możesz dodać pierwszy
-                            artykuł do gazetki.
-                        </p>
 
-                        <button type="button"
-                                class="admin-small-button"
-                                @onclick="() => SetView(2)">
-                            Dodaj pierwszy artykuł
-                        </button>
+                        <h3>Brak artykułów</h3>
+
+                        <p>Nie znaleziono publikacji.</p>
+
+                        @if (CanAddArticles)
+                        {
+                            <button type="button"
+                                    class="admin-small-button"
+                                    @onclick="StartAddingArticle">
+                                Dodaj pierwszy artykuł
+                            </button>
+                        }
                     </div>
                 }
                 else
                 {
                     <div class="article-panel">
-                        <ArticleCard Articles="articleList"
-                                     permissions="true"
-                                     OnEdit="LoadArticleToEditAsync"
-                                     CanDelete="Permissions[EnumPermissions.DeleteArticle]" />
+                        <ArticleCard
+                            Articles="articleList"
+                            permissions="true"
+                            OnEdit="LoadArticleToEditAsync"
+                            CanDelete="Permissions[EnumPermissions.DeleteArticle]" />
                     </div>
                 }
             </section>
@@ -233,16 +283,55 @@
                         <span class="admin-section-heading__eyebrow">
                             NOWA PUBLIKACJA
                         </span>
-                        <h2>Dodaj artykuł</h2>
-                        <p>Uzupełnij formularz, aby przygotować publikację.</p>
+
+                        <h2>
+                            @(selectedCategory.HasValue
+                                ? "Uzupełnij dane artykułu"
+                                : "Wybierz kategorię")
+                        </h2>
+
+                        <p>
+                            Najpierw wybierz kategorię, a następnie
+                            uzupełnij odpowiedni formularz.
+                        </p>
                     </div>
                 </div>
 
-                <div class="admin-form-wrapper">
-                    <ArticleForm IsEdit="false" />
-                </div>
+                @if (!selectedCategory.HasValue)
+                {
+                    <ArticleCategorySelector
+                        OnCategorySelected="SelectArticleCategory" />
+                }
+                else
+                {
+                    <div class="selected-category-bar">
+                        <div>
+                            <span class="selected-category-bar__label">
+                                Wybrana kategoria
+                            </span>
+
+                            <strong>
+                                @GetCategoryName(selectedCategory.Value)
+                            </strong>
+                        </div>
+
+                        <button type="button"
+                                class="admin-small-button"
+                                @onclick="ChangeCategory">
+                            Zmień kategorię
+                        </button>
+                    </div>
+
+                    <div class="admin-form-wrapper">
+                        <ArticleForm
+                            @key="selectedCategory.Value"
+                            IsEdit="false"
+                            InitialCategory="selectedCategory" />
+                    </div>
+                }
             </section>
         }
+
         else if (view == 3)
         {
             <section class="admin-content-panel">
@@ -251,7 +340,9 @@
                         <span class="admin-section-heading__eyebrow">
                             KONTA
                         </span>
+
                         <h2>Dodaj użytkownika</h2>
+
                         <p>Utwórz nowe konto w systemie gazetki.</p>
                     </div>
                 </div>
@@ -261,30 +352,126 @@
                 </div>
             </section>
         }
-        else if(view == 4)
+        else if (view == 4)
         {
-            <ArticleForm IsEdit="true" Article="articleToEdit" />
+            <section class="admin-content-panel">
+                <div class="admin-content-panel__header">
+                    <div>
+                        <span class="admin-section-heading__eyebrow">
+                            EDYCJA PUBLIKACJI
+                        </span>
 
+                        <h2>Edytuj artykuł</h2>
+                    </div>
+                </div>
+
+                @if (articleToEdit is not null)
+                {
+                    <div class="admin-form-wrapper">
+                        <ArticleForm
+                            @key="articleToEdit.Id"
+                            IsEdit="true"
+                            Article="articleToEdit" />
+                    </div>
+                }
+                else
+                {
+                    <p>Nie wybrano artykułu do edycji.</p>
+                }
+            </section>
         }
-        else if(view == 5)
+        else if (view == 5)
         {
-            <AsignUserPermissionCard/>
+            <AsignUserPermissionCard />
+        }
+        else if (view == 6)
+        {
+            <section class="admin-content-panel">
+                <div class="admin-content-panel__header">
+                    <div>
+                        <span class="admin-section-heading__eyebrow">
+                            ZARZĄDZANIE KONTAMI
+                        </span>
+
+                        <h2>Usuń użytkownika</h2>
+
+                        <p>
+                            Wybierz konto, które chcesz usunąć.
+                            Tej operacji nie można łatwo cofnąć.
+                        </p>
+                    </div>
+                </div>
+
+                @if (usersLoading)
+                {
+                    <p>Ładowanie użytkowników...</p>
+                }
+                else if (userList.Count == 0)
+                {
+                    <div class="admin-empty-state">
+                        <h3>Brak użytkowników</h3>
+                        <p>Nie znaleziono innych kont do wyświetlenia.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="admin-user-list">
+                        @foreach (var user in userList)
+                        {
+                            <div class="admin-user-row" @key="user.Key">
+                                <div class="admin-user-row__info">
+                                    <strong>@user.Value</strong>
+                                    <span>ID użytkownika: @user.Key</span>
+                                </div>
+
+                                <button type="button"
+                                        class="admin-small-button"
+                                        disabled="@isDeleting"
+                                        @onclick="() => DeleteUserAsync(user.Key)">
+                                    Usuń użytkownika
+                                </button>
+                            </div>
+                        }
+                    </div>
+                }
+            </section>
         }
     }
-
-    </div>
+</div>
 
 @code {
     [SupplyParameterFromQuery(Name = "notification")]
     public string? Notification { get; set; }
-    [Inject]
-    public IPermissionService permissionService { get; set; }
+
     public int view = 0;
-    public List<Article> articleList = new List<Article>();
+
+    public List<Article> articleList = new();
+
     public Article? articleToEdit;
-    private Dictionary<EnumPermissions, bool> Permissions 
-     = Enum.GetValues<EnumPermissions>()
-    .ToDictionary(p => p, p => false);
+
+    private EnumArticleCategory? selectedCategory;
+
+    private Dictionary<EnumPermissions, bool> Permissions =
+        Enum.GetValues<EnumPermissions>()
+            .ToDictionary(p => p, p => false);
+
+    private Dictionary<int, string> userList = new();
+
+    private bool usersLoading;
+    private bool isDeleting;
+
+    private bool CanEditArticles =>
+        Permissions[EnumPermissions.EditArticle] ||
+        Permissions[EnumPermissions.Master];
+
+    private bool CanAddArticles =>
+        Permissions[EnumPermissions.AddArticle] ||
+        Permissions[EnumPermissions.Master];
+
+    private bool IsMaster =>
+        Permissions.TryGetValue(EnumPermissions.Master, out var value)
+        && value;
+
     protected override async Task OnInitializedAsync()
     {
         Permissions = await permissionService.GetAllPermissionsAsync();
@@ -296,23 +483,191 @@
         {
             NotifyService.Show(
                 "Logowanie powiodło się!",
-                EnumNotificationType.Success
-            );
+                EnumNotificationType.Success);
         }
     }
 
-    public void SetView(int view)
+    public void SetView(int newView)
     {
-        this.view = view;
+        if (newView == 6 && !IsMaster)
+        {
+            NotifyService.Show(
+                "Tylko użytkownik Master może usuwać konta.",
+                EnumNotificationType.Failure);
+
+            return;
+        }
+
+        if (newView == 5 && !IsMaster)
+        {
+            NotifyService.Show(
+                "Brak uprawnień!",
+                EnumNotificationType.Failure);
+
+            return;
+        }
+
+        if (newView == 3 &&
+            !Permissions[EnumPermissions.AddUser] &&
+            !IsMaster)
+        {
+            NotifyService.Show(
+                "Brak uprawnień!",
+                EnumNotificationType.Failure);
+
+            return;
+        }
+
+        view = newView;
     }
+
+    private void BackToDashboard()
+    {
+        selectedCategory = null;
+        articleToEdit = null;
+        view = 0;
+    }
+
+    private void StartAddingArticle()
+    {
+        if (!CanAddArticles)
+        {
+            NotifyService.Show(
+                "Nie masz uprawnień do dodawania artykułów.",
+                EnumNotificationType.Failure);
+
+            return;
+        }
+
+        selectedCategory = null;
+        view = 2;
+    }
+
+    private void SelectArticleCategory(EnumArticleCategory category)
+    {
+        if (!CanAddArticles)
+        {
+            return;
+        }
+
+        selectedCategory = category;
+    }
+
+    private void ChangeCategory()
+    {
+        selectedCategory = null;
+    }
+
+    private string GetCategoryName(EnumArticleCategory category)
+    {
+        return category switch
+        {
+            EnumArticleCategory.Announcments => "Ogłoszenia",
+            EnumArticleCategory.Substitute => "Zastępstwa",
+            EnumArticleCategory.Events => "Wydarzenia",
+            EnumArticleCategory.Competitions => "Zawody",
+            EnumArticleCategory.Admisions => "Rekrutacja",
+            EnumArticleCategory.Exams => "Egzaminy",
+            EnumArticleCategory.StudentCouncil => "Samorząd uczniowski",
+            _ => "Nieznana kategoria"
+        };
+    }
+
     public async Task LoadArticleAsync()
     {
+        if (!CanEditArticles)
+        {
+            NotifyService.Show(
+                "Brak uprawnień do zarządzania artykułami.",
+                EnumNotificationType.Failure);
+
+            return;
+        }
+
         articleList = await articleService.GetAllArticlesAsync();
-        SetView(1);
+        view = 1;
     }
+
     public async Task LoadArticleToEditAsync(int id)
     {
+        if (!CanEditArticles)
+        {
+            return;
+        }
+
         articleToEdit = await articleService.GetArticleByIdAsync(id);
-        SetView(4);
+
+        if (articleToEdit is not null)
+        {
+            view = 4;
+        }
     }
+
+    private async Task LoadUsersAsync()
+    {
+        if (!IsMaster)
+        {
+            NotifyService.Show(
+                "Tylko użytkownik Master może zarządzać kontami.",
+                EnumNotificationType.Failure);
+
+            return;
+        }
+
+        usersLoading = true;
+        view = 6;
+
+        try
+        {
+            userList = await authService.GetAllUsersAsync();
+
+            var currentUserId = await permissionService.GetUserId();
+
+            // Nie pokazujemy własnego konta na liście.
+            userList.Remove(currentUserId);
+        }
+        catch (Exception)
+        {
+            NotifyService.Show(
+                "Nie udało się pobrać listy użytkowników.",
+                EnumNotificationType.Error);
+        }
+        finally
+        {
+            usersLoading = false;
+        }
+    }
+
+   
+private async Task DeleteUserAsync(int userId)
+{
+    if (isDeleting)
+    {
+        return;
+    }
+
+    isDeleting = true;
+
+    try
+    {
+        bool deleted =
+            await authService.RemoveUserByIdAsync(userId);
+
+        if (deleted)
+        {
+            userList.Remove(userId);
+        }
+    }
+    catch (Exception)
+    {
+        NotifyService.Show(
+            "Wystąpił błąd podczas usuwania użytkownika.",
+            EnumNotificationType.Error);
+    }
+    finally
+    {
+        isDeleting = false;
+    }
+}
+
 }

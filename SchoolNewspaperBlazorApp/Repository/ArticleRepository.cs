@@ -21,7 +21,8 @@ namespace SchoolNewspaperBlazorApp.Repository
                 await _contextFactory.CreateDbContextAsync();
 
             if (string.IsNullOrWhiteSpace(article.Title) ||
-                string.IsNullOrWhiteSpace(article.Text))
+                string.IsNullOrWhiteSpace(article.Text) ||
+                string.IsNullOrWhiteSpace(article.Author))
             {
                 return 0;
             }
@@ -44,8 +45,10 @@ namespace SchoolNewspaperBlazorApp.Repository
             await using var context =
                 await _contextFactory.CreateDbContextAsync();
 
-            if (string.IsNullOrWhiteSpace(article.Title) ||
-                string.IsNullOrWhiteSpace(article.Text))
+            if (article.Id <= 0 ||
+                string.IsNullOrWhiteSpace(article.Title) ||
+                string.IsNullOrWhiteSpace(article.Text) ||
+                string.IsNullOrWhiteSpace(article.Author))
             {
                 return 0;
             }
@@ -60,15 +63,63 @@ namespace SchoolNewspaperBlazorApp.Repository
                     return 0;
                 }
 
+                // Podstawowe dane artykułu
                 existingArticle.Title = article.Title;
                 existingArticle.Text = article.Text;
                 existingArticle.Author = article.Author;
                 existingArticle.Category = article.Category;
 
-                if (article.MainImageId != 0)
+                // Zachowujemy poprzednie zdjęcie, jeśli nie wybrano nowego
+                if (article.MainImageId > 0)
                 {
                     existingArticle.MainImageId = article.MainImageId;
                 }
+
+                // Ogłoszenia
+                existingArticle.AnnouncementDeadline =
+                    article.AnnouncementDeadline;
+
+                // Zastępstwa
+                existingArticle.SubstituteDate =
+                    article.SubstituteDate;
+                existingArticle.SchoolClass =
+                    article.SchoolClass;
+                existingArticle.Teacher =
+                    article.Teacher;
+
+                // Wydarzenia
+                existingArticle.EventDate =
+                    article.EventDate;
+                existingArticle.EventTime =
+                    article.EventTime;
+                existingArticle.EventLocation =
+                    article.EventLocation;
+
+                // Zawody
+                existingArticle.CompetitionDate =
+                    article.CompetitionDate;
+                existingArticle.CompetitionDiscipline =
+                    article.CompetitionDiscipline;
+                existingArticle.CompetitionLocation =
+                    article.CompetitionLocation;
+
+                // Rekrutacja
+                existingArticle.AdmissionsStart =
+                    article.AdmissionsStart;
+                existingArticle.AdmissionsEnd =
+                    article.AdmissionsEnd;
+
+                // Egzaminy
+                existingArticle.ExamDate =
+                    article.ExamDate;
+                existingArticle.ExamSubject =
+                    article.ExamSubject;
+                existingArticle.ExamClass =
+                    article.ExamClass;
+
+                // Samorząd uczniowski
+                existingArticle.CouncilInitiative =
+                    article.CouncilInitiative;
 
                 await context.SaveChangesAsync();
 
@@ -85,7 +136,10 @@ namespace SchoolNewspaperBlazorApp.Repository
             await using var context =
                 await _contextFactory.CreateDbContextAsync();
 
-            return await context.Articles.ToListAsync();
+            return await context.Articles
+                .AsNoTracking()
+                .OrderByDescending(a => a.PublishDate)
+                .ToListAsync();
         }
 
         public async Task<Article> GetArticleByIdAsync(int id)
@@ -94,11 +148,13 @@ namespace SchoolNewspaperBlazorApp.Repository
                 await _contextFactory.CreateDbContextAsync();
 
             var article = await context.Articles
+                .AsNoTracking()
                 .FirstOrDefaultAsync(a => a.Id == id);
 
             if (article == null)
             {
-                throw new Exception($"Article with ID {id} not found.");
+                throw new Exception(
+                    $"Nie znaleziono artykułu o ID {id}.");
             }
 
             return article;

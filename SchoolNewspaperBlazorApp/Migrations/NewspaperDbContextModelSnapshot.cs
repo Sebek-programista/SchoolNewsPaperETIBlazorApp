@@ -30,6 +30,15 @@ namespace SchoolNewspaperBlazorApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime?>("AdmissionsEnd")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("AdmissionsStart")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("AnnouncementDeadline")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Author")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -37,11 +46,50 @@ namespace SchoolNewspaperBlazorApp.Migrations
                     b.Property<int>("Category")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("CompetitionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CompetitionDiscipline")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CompetitionLocation")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CouncilInitiative")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("EventDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("EventLocation")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<TimeOnly?>("EventTime")
+                        .HasColumnType("time");
+
+                    b.Property<string>("ExamClass")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ExamDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ExamSubject")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("MainImageId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("PublishDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("SchoolClass")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("SubstituteDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Teacher")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Text")
                         .IsRequired()

@@ -1,4 +1,5 @@
 ﻿
+@using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Forms
 @using SchoolNewspaperBlazorApp.Data
 @using SchoolNewspaperBlazorApp.Data.Enums
@@ -9,11 +10,12 @@
 @inject INotificationService notificationService
 
 <div class="add-article-form">
+
     <h1 class="add-article-form__title">
         @(IsEdit ? "Edytuj artykuł" : "Dodaj artykuł")
     </h1>
 
-    @if (previewImage != null)
+    @if (!string.IsNullOrWhiteSpace(previewImage))
     {
         <div class="image-preview-wrap">
             <img src="@previewImage"
@@ -24,77 +26,284 @@
 
     <form @onsubmit="SubmitForm" @onsubmit:preventDefault>
 
+        <label class="form-label">Kategoria artykułu *</label>
+
+        <select class="form-select mb-2"
+                @bind="category"
+                disabled="@(IsEdit || InitialCategory.HasValue)">
+
+            <option value="">-- Wybierz kategorię --</option>
+            <option value="@EnumArticleCategory.Announcments">Ogłoszenia</option>
+            <option value="@EnumArticleCategory.Substitute">Zastępstwa</option>
+            <option value="@EnumArticleCategory.Events">Wydarzenia</option>
+            <option value="@EnumArticleCategory.Competitions">Zawody</option>
+            <option value="@EnumArticleCategory.Admisions">Rekrutacja</option>
+            <option value="@EnumArticleCategory.Exams">Egzaminy</option>
+            <option value="@EnumArticleCategory.StudentCouncil">Samorząd uczniowski</option>
+        </select>
+
+        @if (categoryError)
+        {
+            <div class="category-validation-error">
+                Wybierz prawidłową kategorię artykułu.
+            </div>
+        }
+
+        @if (category.HasValue)
+        {
+            <div class="category-extra-fields mt-4 mb-4">
+
+                @switch (category.Value)
+                {
+                    case EnumArticleCategory.Announcments:
+                        <h3>Dane ogłoszenia</h3>
+
+                        <label class="form-label">Termin obowiązywania</label>
+                        <InputDate TValue="DateTime?"
+                                   @bind-Value="announcementDeadline"
+                                   class="form-control mb-3" />
+                        break;
+
+                    case EnumArticleCategory.Substitute:
+                        <h3>Dane zastępstwa</h3>
+
+                        <label class="form-label">Data zastępstwa *</label>
+                        <InputDate TValue="DateTime?"
+                                   @bind-Value="substituteDate"
+                                   class="form-control mb-2" />
+
+                        @if (categoryDetailsError && !substituteDate.HasValue)
+                        {
+                            <div class="category-validation-error">
+                                Podaj datę zastępstwa.
+                            </div>
+                        }
+
+                        <label class="form-label">Klasa *</label>
+                        <input @bind="schoolClass"
+                               @bind:event="oninput"
+                               class="form-control mb-2"
+                               placeholder="Np. 2A" />
+
+                        @if (categoryDetailsError &&
+                             string.IsNullOrWhiteSpace(schoolClass))
+                        {
+                            <div class="category-validation-error">
+                                Podaj klasę.
+                            </div>
+                        }
+
+                        <label class="form-label">Nauczyciel</label>
+                        <input @bind="teacher"
+                               @bind:event="oninput"
+                               class="form-control mb-3"
+                               placeholder="Imię i nazwisko nauczyciela" />
+                        break;
+
+                    case EnumArticleCategory.Events:
+                        <h3>Dane wydarzenia</h3>
+
+                        <label class="form-label">Data wydarzenia *</label>
+                        <InputDate TValue="DateTime?"
+                                   @bind-Value="eventDate"
+                                   class="form-control mb-2" />
+
+                        @if (categoryDetailsError && !eventDate.HasValue)
+                        {
+                            <div class="category-validation-error">
+                                Podaj datę wydarzenia.
+                            </div>
+                        }
+
+                        <label class="form-label">Godzina</label>
+                        <input type="time"
+                               @bind="eventTime"
+                               class="form-control mb-3" />
+
+                        <label class="form-label">Miejsce wydarzenia</label>
+                        <input @bind="eventLocation"
+                               @bind:event="oninput"
+                               class="form-control mb-3"
+                               placeholder="Np. sala gimnastyczna" />
+                        break;
+
+                    case EnumArticleCategory.Competitions:
+                        <h3>Dane zawodów</h3>
+
+                        <label class="form-label">Data zawodów *</label>
+                        <InputDate TValue="DateTime?"
+                                   @bind-Value="competitionDate"
+                                   class="form-control mb-2" />
+
+                        @if (categoryDetailsError && !competitionDate.HasValue)
+                        {
+                            <div class="category-validation-error">
+                                Podaj datę zawodów.
+                            </div>
+                        }
+
+                        <label class="form-label">Dyscyplina</label>
+                        <input @bind="competitionDiscipline"
+                               @bind:event="oninput"
+                               class="form-control mb-3"
+                               placeholder="Np. piłka nożna" />
+
+                        <label class="form-label">Miejsce zawodów</label>
+                        <input @bind="competitionLocation"
+                               @bind:event="oninput"
+                               class="form-control mb-3"
+                               placeholder="Miejsce zawodów" />
+                        break;
+
+                    case EnumArticleCategory.Admisions:
+                        <h3>Terminy rekrutacji</h3>
+
+                        <label class="form-label">Początek rekrutacji *</label>
+                        <InputDate TValue="DateTime?"
+                                   @bind-Value="admissionsStart"
+                                   class="form-control mb-2" />
+
+                        <label class="form-label">Koniec rekrutacji *</label>
+                        <InputDate TValue="DateTime?"
+                                   @bind-Value="admissionsEnd"
+                                   class="form-control mb-2" />
+
+                        @if (categoryDetailsError)
+                        {
+                            <div class="category-validation-error">
+                                Uzupełnij obie daty. Koniec rekrutacji nie może
+                                przypadać przed jej rozpoczęciem.
+                            </div>
+                        }
+                        break;
+
+                    case EnumArticleCategory.Exams:
+                        <h3>Dane egzaminu</h3>
+
+                        <label class="form-label">Data egzaminu *</label>
+                        <InputDate TValue="DateTime?"
+                                   @bind-Value="examDate"
+                                   class="form-control mb-2" />
+
+                        @if (categoryDetailsError && !examDate.HasValue)
+                        {
+                            <div class="category-validation-error">
+                                Podaj datę egzaminu.
+                            </div>
+                        }
+
+                        <label class="form-label">Przedmiot</label>
+                        <input @bind="examSubject"
+                               @bind:event="oninput"
+                               class="form-control mb-3"
+                               placeholder="Np. matematyka" />
+
+                        <label class="form-label">Klasa</label>
+                        <input @bind="examClass"
+                               @bind:event="oninput"
+                               class="form-control mb-3"
+                               placeholder="Np. 8A" />
+                        break;
+
+                    case EnumArticleCategory.StudentCouncil:
+                        <h3>Inicjatywa samorządu uczniowskiego</h3>
+
+                        <label class="form-label">Rodzaj inicjatywy</label>
+                        <input @bind="councilInitiative"
+                               @bind:event="oninput"
+                               class="form-control mb-3"
+                               placeholder="Np. zbiórka charytatywna" />
+                        break;
+                }
+            </div>
+        }
+
+        <hr />
+
         <label class="form-label">Zdjęcie główne *</label>
 
         <InputFile OnChange="ChoosePhoto"
                    accept="image/*"
                    class="form-control mb-3" />
 
+        @if (fileError)
+        {
+            <div class="category-validation-error">
+                @fileErrorMessage
+            </div>
+        }
+
         <label class="form-label">Tytuł *</label>
 
         <input @bind="title"
+               @bind:event="oninput"
                class="form-control mb-3"
-               placeholder="Wpisz tytuł..."
-               required />
+               placeholder="Wpisz tytuł..." />
+
+        @if (titleError)
+        {
+            <div class="category-validation-error">
+                Wpisz tytuł artykułu.
+            </div>
+        }
 
         <label class="form-label">Treść *</label>
 
         <textarea @bind="text"
+                  @bind:event="oninput"
                   class="form-control mb-3"
                   rows="6"
-                  placeholder="Treść artykułu..."
-                  required>
-        </textarea>
+                  placeholder="Treść artykułu..."></textarea>
+
+        @if (textError)
+        {
+            <div class="category-validation-error">
+                Wpisz treść artykułu.
+            </div>
+        }
 
         <label class="form-label">Autor *</label>
 
         <input @bind="author"
+               @bind:event="oninput"
                class="form-control mb-3"
-               placeholder="Imię i nazwisko"
-               required />
+               placeholder="Imię i nazwisko" />
 
-        <label class="form-label">Kategoria artykułu *</label>
-
-        <select @bind="category"
-                class="form-select mb-2"
-                required>
-            <option value="">-- Wybierz kategorię --</option>
-
-            <option value="@EnumArticleCategory.Nowosci">
-                Nowości
-            </option>
-
-            <option value="@EnumArticleCategory.Wydarzenia">
-                Wydarzenia
-            </option>
-
-            <option value="@EnumArticleCategory.Ogloszenia">
-                Ogłoszenia
-            </option>
-        </select>
-
-        @if (categoryError)
+        @if (authorError)
         {
             <div class="category-validation-error">
-                Wybierz kategorię artykułu przed zapisaniem.
+                Wpisz imię i nazwisko autora.
             </div>
         }
 
         @if (!IsEdit)
         {
-            <label class="form-label mt-3">
-                Zdjęcia do galerii
-            </label>
+            <label class="form-label mt-3">Zdjęcia do galerii</label>
 
             <InputFile OnChange="ChooseGalleryPhotos"
                        accept="image/*"
                        multiple
                        class="form-control mb-3" />
+
+            @if (galleryError)
+            {
+                <div class="category-validation-error">
+                    @galleryErrorMessage
+                </div>
+            }
+
+            @if (galleryFiles.Count > 0)
+            {
+                <p>Wybrano zdjęć do galerii: @galleryFiles.Count</p>
+            }
         }
 
         <button type="submit"
-                class="btn btn-primary w-100">
-            @(IsEdit ? "Zatwierdź edycję" : "Dodaj artykuł")
+                class="btn btn-primary w-100"
+                disabled="@isSaving">
+            @(isSaving
+                ? "Zapisywanie..."
+                : IsEdit ? "Zatwierdź edycję" : "Dodaj artykuł")
         </button>
     </form>
 </div>
@@ -106,27 +315,97 @@
     [Parameter]
     public Article? Article { get; set; }
 
+    [Parameter]
+    public EnumArticleCategory? InitialCategory { get; set; }
+
     private string title = "";
     private string text = "";
     private string author = "";
 
-    private EnumArticleCategory? category = null;
+    private EnumArticleCategory? category;
 
-    private bool categoryError = false;
+    private bool titleError;
+    private bool textError;
+    private bool authorError;
+    private bool categoryError;
+    private bool categoryDetailsError;
+    private bool fileError;
+    private bool galleryError;
+    private bool isSaving;
+
+    private string fileErrorMessage = "";
+    private string galleryErrorMessage = "";
 
     private string? previewImage;
     private IBrowserFile? file;
 
     private List<IBrowserFile> galleryFiles = new();
 
+    private DateTime? announcementDeadline;
+
+    private DateTime? substituteDate;
+    private string schoolClass = "";
+    private string teacher = "";
+
+    private DateTime? eventDate;
+    private TimeOnly? eventTime;
+    private string eventLocation = "";
+
+    private DateTime? competitionDate;
+    private string competitionDiscipline = "";
+    private string competitionLocation = "";
+
+    private DateTime? admissionsStart;
+    private DateTime? admissionsEnd;
+
+    private DateTime? examDate;
+    private string examSubject = "";
+    private string examClass = "";
+
+    private string councilInitiative = "";
+
+    private const long MaxFileSize = 10 * 1024 * 1024;
+
     protected override void OnParametersSet()
     {
-        if (IsEdit && Article != null)
+        if (IsEdit && Article is not null)
         {
             title = Article.Title;
             text = Article.Text;
             author = Article.Author;
             category = Article.Category;
+
+            // Wczytanie wszystkich szczegółów kategorii.
+            announcementDeadline = Article.AnnouncementDeadline;
+
+            substituteDate = Article.SubstituteDate;
+            schoolClass = Article.SchoolClass ?? "";
+            teacher = Article.Teacher ?? "";
+
+            eventDate = Article.EventDate;
+            eventTime = Article.EventTime;
+            eventLocation = Article.EventLocation ?? "";
+
+            competitionDate = Article.CompetitionDate;
+            competitionDiscipline =
+                Article.CompetitionDiscipline ?? "";
+            competitionLocation =
+                Article.CompetitionLocation ?? "";
+
+            admissionsStart = Article.AdmissionsStart;
+            admissionsEnd = Article.AdmissionsEnd;
+
+            examDate = Article.ExamDate;
+            examSubject = Article.ExamSubject ?? "";
+            examClass = Article.ExamClass ?? "";
+
+            councilInitiative = Article.CouncilInitiative ?? "";
+
+            file = null;
+            previewImage = null;
+
+            galleryFiles.Clear();
+            ClearErrors();
         }
         else if (!IsEdit)
         {
@@ -134,86 +413,371 @@
             text = "";
             author = "";
 
-            category = null;
-            categoryError = false;
+            category = InitialCategory;
 
             file = null;
             previewImage = null;
+
             galleryFiles.Clear();
+
+            ResetCategoryFields();
+            ClearErrors();
+        }
+    }
+
+    private void ResetCategoryFields()
+    {
+        announcementDeadline = null;
+
+        substituteDate = null;
+        schoolClass = "";
+        teacher = "";
+
+        eventDate = null;
+        eventTime = null;
+        eventLocation = "";
+
+        competitionDate = null;
+        competitionDiscipline = "";
+        competitionLocation = "";
+
+        admissionsStart = null;
+        admissionsEnd = null;
+
+        examDate = null;
+        examSubject = "";
+        examClass = "";
+
+        councilInitiative = "";
+    }
+
+    private void ClearErrors()
+    {
+        titleError = false;
+        textError = false;
+        authorError = false;
+        categoryError = false;
+        categoryDetailsError = false;
+        fileError = false;
+        galleryError = false;
+
+        fileErrorMessage = "";
+        galleryErrorMessage = "";
+    }
+
+    private bool IsImage(IBrowserFile selectedFile)
+    {
+        return selectedFile.ContentType.StartsWith(
+            "image/",
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    private async Task ChoosePhoto(InputFileChangeEventArgs e)
+    {
+        fileError = false;
+        fileErrorMessage = "";
+
+        var selectedFile = e.File;
+
+        if (!IsImage(selectedFile))
+        {
+            file = null;
+            previewImage = null;
+
+            fileError = true;
+            fileErrorMessage =
+                "Wybierz prawidłowy plik graficzny.";
+
+            notificationService.Show(
+                fileErrorMessage,
+                EnumNotificationType.Failure);
+
+            return;
+        }
+
+        if (selectedFile.Size > MaxFileSize)
+        {
+            file = null;
+            previewImage = null;
+
+            fileError = true;
+            fileErrorMessage =
+                "Zdjęcie główne nie może przekraczać 10 MB.";
+
+            notificationService.Show(
+                fileErrorMessage,
+                EnumNotificationType.Failure);
+
+            return;
+        }
+
+        file = selectedFile;
+
+        try
+        {
+            previewImage = await fileService.GetPreviewAsync(file);
+        }
+        catch (Exception)
+        {
+            file = null;
+            previewImage = null;
+
+            fileError = true;
+            fileErrorMessage =
+                "Nie udało się wczytać podglądu zdjęcia.";
+
+            notificationService.Show(
+                fileErrorMessage,
+                EnumNotificationType.Failure);
         }
     }
 
     private void ChooseGalleryPhotos(InputFileChangeEventArgs e)
     {
-        galleryFiles = e.GetMultipleFiles(50).ToList();
+        galleryError = false;
+        galleryErrorMessage = "";
+        galleryFiles.Clear();
+
+        try
+        {
+            var selectedFiles = e.GetMultipleFiles(50);
+
+            foreach (var image in selectedFiles)
+            {
+                if (!IsImage(image))
+                {
+                    galleryError = true;
+                    galleryErrorMessage =
+                        "Galeria może zawierać wyłącznie pliki graficzne.";
+
+                    galleryFiles.Clear();
+
+                    notificationService.Show(
+                        galleryErrorMessage,
+                        EnumNotificationType.Failure);
+
+                    return;
+                }
+
+                if (image.Size > MaxFileSize)
+                {
+                    galleryError = true;
+                    galleryErrorMessage =
+                        "Każde zdjęcie w galerii nie może przekraczać 10 MB.";
+
+                    galleryFiles.Clear();
+
+                    notificationService.Show(
+                        galleryErrorMessage,
+                        EnumNotificationType.Failure);
+
+                    return;
+                }
+            }
+
+            galleryFiles = selectedFiles.ToList();
+        }
+        catch (InvalidOperationException)
+        {
+            galleryError = true;
+            galleryErrorMessage =
+                "Możesz wybrać maksymalnie 50 zdjęć do galerii.";
+
+            galleryFiles.Clear();
+
+            notificationService.Show(
+                galleryErrorMessage,
+                EnumNotificationType.Failure);
+        }
+    }
+
+    private bool ValidateCategoryDetails()
+    {
+        if (!category.HasValue)
+        {
+            return false;
+        }
+
+        switch (category.Value)
+        {
+            case EnumArticleCategory.Announcments:
+                return true;
+
+            case EnumArticleCategory.Substitute:
+                return substituteDate.HasValue &&
+                       !string.IsNullOrWhiteSpace(schoolClass);
+
+            case EnumArticleCategory.Events:
+                return eventDate.HasValue;
+
+            case EnumArticleCategory.Competitions:
+                return competitionDate.HasValue;
+
+            case EnumArticleCategory.Admisions:
+                return admissionsStart.HasValue &&
+                       admissionsEnd.HasValue &&
+                       admissionsEnd.Value.Date >=
+                       admissionsStart.Value.Date;
+
+            case EnumArticleCategory.Exams:
+                return examDate.HasValue;
+
+            case EnumArticleCategory.StudentCouncil:
+                return true;
+
+            default:
+                return false;
+        }
     }
 
     private async Task SubmitForm()
     {
-        // Kategoria jest obowiązkowa.
-        if (category == null ||
-            !Enum.IsDefined(typeof(EnumArticleCategory), category.Value))
+        if (isSaving)
         {
-            categoryError = true;
+            return;
+        }
 
+        titleError = string.IsNullOrWhiteSpace(title);
+        textError = string.IsNullOrWhiteSpace(text);
+        authorError = string.IsNullOrWhiteSpace(author);
+
+        categoryError =
+            !category.HasValue ||
+            !Enum.IsDefined(
+                typeof(EnumArticleCategory),
+                category.Value);
+
+        categoryDetailsError = !ValidateCategoryDetails();
+
+        fileError = !IsEdit && file is null;
+
+        if (fileError &&
+            string.IsNullOrWhiteSpace(fileErrorMessage))
+        {
+            fileErrorMessage =
+                "Zdjęcie główne jest wymagane.";
+        }
+
+        if (titleError ||
+            textError ||
+            authorError ||
+            categoryError ||
+            categoryDetailsError ||
+            fileError ||
+            galleryError)
+        {
             notificationService.Show(
-                "Wybierz kategorię artykułu!",
+                "Popraw błędy w formularzu przed zapisaniem!",
                 EnumNotificationType.Failure);
 
             return;
         }
 
-        categoryError = false;
+        isSaving = true;
 
-        // Zdjęcie główne jest obowiązkowe przy tworzeniu artykułu.
-        if (!IsEdit && file == null)
+        try
         {
-            notificationService.Show(
-                "Artykuł musi zawierać zdjęcie główne!",
-                EnumNotificationType.Failure);
+            int mainImageId = Article?.MainImageId ?? 0;
 
-            return;
-        }
-
-        int mainImageId = Article?.MainImageId ?? 0;
-
-        if (file != null)
-        {
-            mainImageId = await fileService.UploadImage(file);
-        }
-
-        if (IsEdit && Article != null)
-        {
-            await articleService.UpdateArticleByIdAsync(
-                Article.Id,
-                title,
-                text,
-                author,
-                mainImageId,
-                category.Value);
-        }
-        else
-        {
-            int articleId = await articleService.AddArticleAsync(
-                title,
-                text,
-                author,
-                mainImageId,
-                category.Value);
-
-            if (articleId > 0)
+            if (file is not null)
             {
+                mainImageId =
+                    await fileService.UploadImage(file);
+
+                if (mainImageId <= 0)
+                {
+                    notificationService.Show(
+                        "Nie udało się przesłać zdjęcia głównego!",
+                        EnumNotificationType.Error);
+
+                    return;
+                }
+            }
+
+            if (IsEdit && Article is not null)
+            {
+                await articleService.UpdateArticleByIdAsync(
+                    Article.Id,
+                    title.Trim(),
+                    text.Trim(),
+                    author.Trim(),
+                    mainImageId,
+                    category!.Value,
+                    announcementDeadline,
+                    substituteDate,
+                    schoolClass,
+                    teacher,
+                    eventDate,
+                    eventTime,
+                    eventLocation,
+                    competitionDate,
+                    competitionDiscipline,
+                    competitionLocation,
+                    admissionsStart,
+                    admissionsEnd,
+                    examDate,
+                    examSubject,
+                    examClass,
+                    councilInitiative);
+
+                notificationService.Show(
+                    "Artykuł został zaktualizowany.",
+                    EnumNotificationType.Success);
+            }
+            else
+            {
+                int articleId =
+                    await articleService.AddArticleAsync(
+                        title.Trim(),
+                        text.Trim(),
+                        author.Trim(),
+                        mainImageId,
+                        category!.Value,
+                        announcementDeadline,
+                        substituteDate,
+                        schoolClass,
+                        teacher,
+                        eventDate,
+                        eventTime,
+                        eventLocation,
+                        competitionDate,
+                        competitionDiscipline,
+                        competitionLocation,
+                        admissionsStart,
+                        admissionsEnd,
+                        examDate,
+                        examSubject,
+                        examClass,
+                        councilInitiative);
+
+                if (articleId <= 0)
+                {
+                    notificationService.Show(
+                        "Nie udało się dodać artykułu.",
+                        EnumNotificationType.Error);
+
+                    return;
+                }
+
                 foreach (var image in galleryFiles)
                 {
                     await fileService.UploadImage(image, articleId);
                 }
+
+                notificationService.Show(
+                    "Artykuł został dodany.",
+                    EnumNotificationType.Success);
             }
         }
-    }
-
-    private async Task ChoosePhoto(InputFileChangeEventArgs e)
-    {
-        file = e.File;
-        previewImage = await fileService.GetPreviewAsync(file);
+        catch (Exception)
+        {
+            notificationService.Show(
+                "Wystąpił błąd podczas zapisywania artykułu!",
+                EnumNotificationType.Error);
+        }
+        finally
+        {
+            isSaving = false;
+        }
     }
 }

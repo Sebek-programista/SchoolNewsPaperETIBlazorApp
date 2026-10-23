@@ -1,4 +1,5 @@
-﻿using SchoolNewspaperBlazorApp.Data;
+﻿
+using SchoolNewspaperBlazorApp.Data;
 using SchoolNewspaperBlazorApp.Data.Enums;
 
 namespace SchoolNewspaperBlazorApp.Interfaces.Service
@@ -9,8 +10,24 @@ namespace SchoolNewspaperBlazorApp.Interfaces.Service
             string title,
             string text,
             string author,
-            int id,
-            EnumArticleCategory category);
+            int fileId,
+            EnumArticleCategory category,
+            DateTime? announcementDeadline = null,
+            DateTime? substituteDate = null,
+            string? schoolClass = null,
+            string? teacher = null,
+            DateTime? eventDate = null,
+            TimeOnly? eventTime = null,
+            string? eventLocation = null,
+            DateTime? competitionDate = null,
+            string? competitionDiscipline = null,
+            string? competitionLocation = null,
+            DateTime? admissionsStart = null,
+            DateTime? admissionsEnd = null,
+            DateTime? examDate = null,
+            string? examSubject = null,
+            string? examClass = null,
+            string? councilInitiative = null);
 
         Task<List<Article>> GetAllArticlesAsync();
 
@@ -24,6 +41,22 @@ namespace SchoolNewspaperBlazorApp.Interfaces.Service
             string text,
             string author,
             int fileId,
-            EnumArticleCategory category);
+            EnumArticleCategory category,
+            DateTime? announcementDeadline = null,
+            DateTime? substituteDate = null,
+            string? schoolClass = null,
+            string? teacher = null,
+            DateTime? eventDate = null,
+            TimeOnly? eventTime = null,
+            string? eventLocation = null,
+            DateTime? competitionDate = null,
+            string? competitionDiscipline = null,
+            string? competitionLocation = null,
+            DateTime? admissionsStart = null,
+            DateTime? admissionsEnd = null,
+            DateTime? examDate = null,
+            string? examSubject = null,
+            string? examClass = null,
+            string? councilInitiative = null);
     }
 }

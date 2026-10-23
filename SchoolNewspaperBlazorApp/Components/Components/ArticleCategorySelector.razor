@@ -1,0 +1,86 @@
+﻿@using SchoolNewspaperBlazorApp.Data.Enums
+
+<div class="category-selector">
+    <div class="category-selector__intro">
+        <span class="admin-section-heading__eyebrow">
+            KROK 1
+        </span>
+        <h3>Co chcesz opublikować?</h3>
+        <p>Wybierz kategorię dopasowaną do treści artykułu.</p>
+    </div>
+
+    <div class="category-grid">
+        @foreach (var item in Categories)
+        {
+            <button @key="item.Value"
+                    type="button"
+                    class="category-card @(SelectedCategory == item.Value ? "selected" : "")"
+                    aria-pressed="@(SelectedCategory == item.Value)"
+                    @onclick="() => SelectedCategory = item.Value">
+
+                <span class="category-card__icon">@item.Icon</span>
+                <strong>@item.Label</strong>
+                <span class="category-card__description">
+                    @item.Description
+                </span>
+
+                @if (SelectedCategory == item.Value)
+                {
+                    <span class="category-card__check">✓ Wybrano</span>
+                }
+            </button>
+        }
+    </div>
+
+    <button type="button"
+            class="btn btn-primary w-100 mt-4"
+            disabled="@(!SelectedCategory.HasValue)"
+            @onclick="Continue">
+        Przejdź do formularza →
+    </button>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<EnumArticleCategory> OnCategorySelected { get; set; }
+
+    private EnumArticleCategory? SelectedCategory;
+
+    private readonly List<CategoryOption> Categories = new()
+    {
+        new(EnumArticleCategory.Announcments, "",
+            "Ogłoszenia", "Ważne informacje i komunikaty"),
+
+        new(EnumArticleCategory.Substitute, "",
+            "Zastępstwa", "Zmiany planu lekcji"),
+
+        new(EnumArticleCategory.Events, "",
+            "Wydarzenia", "Imprezy i wydarzenia szkolne"),
+
+        new(EnumArticleCategory.Competitions, "",
+            "Zawody", "Konkursy i rywalizacja"),
+
+        new(EnumArticleCategory.Admisions, "",
+            "Rekrutacja", "Terminy i zasady rekrutacji"),
+
+        new(EnumArticleCategory.Exams, "",
+            "Egzaminy", "Informacje o egzaminach"),
+
+        new(EnumArticleCategory.StudentCouncil, "",
+            "Samorząd uczniowski", "Projekty i inicjatywy uczniów")
+    };
+
+    private async Task Continue()
+    {
+        if (SelectedCategory.HasValue)
+        {
+            await OnCategorySelected.InvokeAsync(SelectedCategory.Value);
+        }
+    }
+
+    private sealed record CategoryOption(
+        EnumArticleCategory Value,
+        string Icon,
+        string Label,
+        string Description);
+}

@@ -11,15 +11,18 @@ namespace SchoolNewspaperBlazorApp.Service
         private readonly IArticleRepository _articleRepository;
         private readonly IPermissionService _permissionService;
         private readonly INotificationService _notificationService;
+        private readonly IAuthService _authService;
 
         public ArticleService(
             IArticleRepository articleRepository,
             IPermissionService permissionService,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            IAuthService authService)
         {
             _articleRepository = articleRepository;
             _permissionService = permissionService;
             _notificationService = notificationService;
+            _authService = authService;
         }
 
         public async Task<int> AddArticleAsync(
@@ -27,12 +30,28 @@ namespace SchoolNewspaperBlazorApp.Service
             string text,
             string author,
             int fileId,
-            EnumArticleCategory category)
+            EnumArticleCategory category,
+            DateTime? announcementDeadline = null,
+            DateTime? substituteDate = null,
+            string? schoolClass = null,
+            string? teacher = null,
+            DateTime? eventDate = null,
+            TimeOnly? eventTime = null,
+            string? eventLocation = null,
+            DateTime? competitionDate = null,
+            string? competitionDiscipline = null,
+            string? competitionLocation = null,
+            DateTime? admissionsStart = null,
+            DateTime? admissionsEnd = null,
+            DateTime? examDate = null,
+            string? examSubject = null,
+            string? examClass = null,
+            string? councilInitiative = null)
         {
             if (string.IsNullOrWhiteSpace(title))
             {
                 _notificationService.Show(
-                    "Tytuł nie może być pusty!",
+                    "Tytuł artykułu jest wymagany!",
                     EnumNotificationType.Failure);
                 return 0;
             }
@@ -40,7 +59,23 @@ namespace SchoolNewspaperBlazorApp.Service
             if (string.IsNullOrWhiteSpace(text))
             {
                 _notificationService.Show(
-                    "Treść nie może być pusta!",
+                    "Treść artykułu jest wymagana!",
+                    EnumNotificationType.Failure);
+                return 0;
+            }
+
+            if (fileId <= 0)
+            {
+                _notificationService.Show(
+                    "Artykuł musi zawierać zdjęcie główne!",
+                    EnumNotificationType.Failure);
+                return 0;
+            }
+
+            if (!Enum.IsDefined(typeof(EnumArticleCategory), category))
+            {
+                _notificationService.Show(
+                    "Wybierz prawidłową kategorię artykułu!",
                     EnumNotificationType.Failure);
                 return 0;
             }
@@ -51,25 +86,78 @@ namespace SchoolNewspaperBlazorApp.Service
             if (!hasPermission)
             {
                 _notificationService.Show(
-                    "Brak uprawnień!",
+                    "Brak uprawnień do dodawania artykułów!",
                     EnumNotificationType.Failure);
                 return 0;
             }
 
+            // Pobranie ID aktualnie zalogowanego użytkownika.
+            int userId = await _permissionService.GetUserId();
+
+            if (userId <= 0)
+            {
+                _notificationService.Show(
+                    "Nie udało się ustalić zalogowanego użytkownika!",
+                    EnumNotificationType.Failure);
+                return 0;
+            }
+
+            // Pobranie danych autora z bazy na podstawie ID.
+            var users = await _authService.GetAllUsersAsync();
+
+            if (!users.TryGetValue(userId, out string? email))
+            {
+                _notificationService.Show(
+                    "Nie udało się pobrać danych autora!",
+                    EnumNotificationType.Failure);
+
+                return 0;
+            }
+
+            string authorName = email;
+
+           ;
+
             var article = new Article
             {
-                Title = title,
-                Text = text,
-                Author = author,
+                Title = title.Trim(),
+                Text = text.Trim(),
+
+                // Autor pochodzi z konta zalogowanego użytkownika.
+                Author = authorName,
+
                 PublishDate = DateTime.Now,
                 MainImageId = fileId,
-                Category = category
+                Category = category,
+
+                AnnouncementDeadline = announcementDeadline,
+
+                SubstituteDate = substituteDate,
+                SchoolClass = schoolClass?.Trim(),
+                Teacher = teacher?.Trim(),
+
+                EventDate = eventDate,
+                EventTime = eventTime,
+                EventLocation = eventLocation?.Trim(),
+
+                CompetitionDate = competitionDate,
+                CompetitionDiscipline = competitionDiscipline?.Trim(),
+                CompetitionLocation = competitionLocation?.Trim(),
+
+                AdmissionsStart = admissionsStart,
+                AdmissionsEnd = admissionsEnd,
+
+                ExamDate = examDate,
+                ExamSubject = examSubject?.Trim(),
+                ExamClass = examClass?.Trim(),
+
+                CouncilInitiative = councilInitiative?.Trim()
             };
 
-            var articleId = await _articleRepository
+            int articleId = await _articleRepository
                 .AddArticleAsync(article);
 
-            if (articleId != 0)
+            if (articleId > 0)
             {
                 _notificationService.Show(
                     "Pomyślnie dodano artykuł!",
@@ -91,20 +179,45 @@ namespace SchoolNewspaperBlazorApp.Service
             string text,
             string author,
             int fileId,
-            EnumArticleCategory category)
+            EnumArticleCategory category,
+            DateTime? announcementDeadline = null,
+            DateTime? substituteDate = null,
+            string? schoolClass = null,
+            string? teacher = null,
+            DateTime? eventDate = null,
+            TimeOnly? eventTime = null,
+            string? eventLocation = null,
+            DateTime? competitionDate = null,
+            string? competitionDiscipline = null,
+            string? competitionLocation = null,
+            DateTime? admissionsStart = null,
+            DateTime? admissionsEnd = null,
+            DateTime? examDate = null,
+            string? examSubject = null,
+            string? examClass = null,
+            string? councilInitiative = null)
         {
-            if (string.IsNullOrWhiteSpace(title))
+            if (id <= 0)
             {
                 _notificationService.Show(
-                    "Tytuł nie może być pusty!",
+                    "Nieprawidłowe ID artykułu!",
                     EnumNotificationType.Failure);
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(text))
+            if (string.IsNullOrWhiteSpace(title) ||
+                string.IsNullOrWhiteSpace(text))
             {
                 _notificationService.Show(
-                    "Treść nie może być pusta!",
+                    "Tytuł i treść są wymagane!",
+                    EnumNotificationType.Failure);
+                return;
+            }
+
+            if (!Enum.IsDefined(typeof(EnumArticleCategory), category))
+            {
+                _notificationService.Show(
+                    "Wybierz prawidłową kategorię artykułu!",
                     EnumNotificationType.Failure);
                 return;
             }
@@ -115,25 +228,69 @@ namespace SchoolNewspaperBlazorApp.Service
             if (!hasPermission)
             {
                 _notificationService.Show(
-                    "Brak uprawnień!",
+                    "Brak uprawnień do edytowania artykułów!",
                     EnumNotificationType.Failure);
+                return;
+            }
+
+            Article existingArticle;
+
+            try
+            {
+                existingArticle = await _articleRepository
+                    .GetArticleByIdAsync(id);
+            }
+            catch (Exception)
+            {
+                _notificationService.Show(
+                    "Nie znaleziono artykułu do edycji!",
+                    EnumNotificationType.Error);
                 return;
             }
 
             var article = new Article
             {
                 Id = id,
-                Title = title,
-                Text = text,
-                Author = author,
-                MainImageId = fileId,
-                Category = category
+                Title = title.Trim(),
+                Text = text.Trim(),
+
+                // Przy edycji zachowujemy pierwotnego autora.
+                Author = existingArticle.Author,
+
+                PublishDate = existingArticle.PublishDate,
+                MainImageId = fileId > 0
+                    ? fileId
+                    : existingArticle.MainImageId,
+                Category = category,
+
+                AnnouncementDeadline = announcementDeadline,
+
+                SubstituteDate = substituteDate,
+                SchoolClass = schoolClass?.Trim(),
+                Teacher = teacher?.Trim(),
+
+                EventDate = eventDate,
+                EventTime = eventTime,
+                EventLocation = eventLocation?.Trim(),
+
+                CompetitionDate = competitionDate,
+                CompetitionDiscipline = competitionDiscipline?.Trim(),
+                CompetitionLocation = competitionLocation?.Trim(),
+
+                AdmissionsStart = admissionsStart,
+                AdmissionsEnd = admissionsEnd,
+
+                ExamDate = examDate,
+                ExamSubject = examSubject?.Trim(),
+                ExamClass = examClass?.Trim(),
+
+                CouncilInitiative = councilInitiative?.Trim()
             };
 
-            var success = await _articleRepository
+            int result = await _articleRepository
                 .UpdateArticleByIdAsync(article);
 
-            if (success != 0)
+            if (result > 0)
             {
                 _notificationService.Show(
                     "Pomyślnie zaktualizowano artykuł!",
@@ -154,35 +311,33 @@ namespace SchoolNewspaperBlazorApp.Service
 
         public async Task<Article> GetArticleByIdAsync(int id)
         {
-            Article article = await _articleRepository
-                .GetArticleByIdAsync(id);
-
-            if (article == null)
+            if (id <= 0)
             {
-                throw new Exception(
-                    $"Article with ID {id} not found.");
+                throw new ArgumentException(
+                    "Nieprawidłowe ID artykułu.",
+                    nameof(id));
             }
 
-            return article;
+            return await _articleRepository.GetArticleByIdAsync(id);
         }
 
         public async Task<bool> RemoveArticleByIdAsync(int id)
         {
+            if (id <= 0)
+            {
+                _notificationService.Show(
+                    "Nieprawidłowe ID artykułu!",
+                    EnumNotificationType.Failure);
+                return false;
+            }
+
             bool hasPermission = await _permissionService
                 .HasPermissionAsync(EnumPermissions.DeleteArticle);
 
             if (!hasPermission)
             {
                 _notificationService.Show(
-                    "Brak uprawnień!",
-                    EnumNotificationType.Failure);
-                return false;
-            }
-
-            if (id <= 0)
-            {
-                _notificationService.Show(
-                    "Nieprawidłowe ID artykułu!",
+                    "Brak uprawnień do usuwania artykułów!",
                     EnumNotificationType.Failure);
                 return false;
             }

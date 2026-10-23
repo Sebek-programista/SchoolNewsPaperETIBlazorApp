@@ -1,5 +1,4 @@
-﻿
-@page "/"
+﻿@page "/"
 
 @using SchoolNewspaperBlazorApp.Components.Components
 @using SchoolNewspaperBlazorApp.Data
@@ -42,21 +41,45 @@
     </button>
 
     <button type="button"
-            class="@GetTabClass(EnumArticleCategory.Nowosci)"
-            @onclick="() => SelectCategory(EnumArticleCategory.Nowosci)">
-        Nowości
+            class="@GetTabClass(EnumArticleCategory.Announcments)"
+            @onclick="() => SelectCategory(EnumArticleCategory.Announcments)">
+        Ogłoszenia
     </button>
 
     <button type="button"
-            class="@GetTabClass(EnumArticleCategory.Wydarzenia)"
-            @onclick="() => SelectCategory(EnumArticleCategory.Wydarzenia)">
+            class="@GetTabClass(EnumArticleCategory.Substitute)"
+            @onclick="() => SelectCategory(EnumArticleCategory.Substitute)">
+        Zastępstwa
+    </button>
+
+    <button type="button"
+            class="@GetTabClass(EnumArticleCategory.Events)"
+            @onclick="() => SelectCategory(EnumArticleCategory.Events)">
         Wydarzenia
     </button>
 
     <button type="button"
-            class="@GetTabClass(EnumArticleCategory.Ogloszenia)"
-            @onclick="() => SelectCategory(EnumArticleCategory.Ogloszenia)">
-        Ogłoszenia
+            class="@GetTabClass(EnumArticleCategory.Competitions)"
+            @onclick="() => SelectCategory(EnumArticleCategory.Competitions)">
+        Zawody
+    </button>
+
+    <button type="button"
+            class="@GetTabClass(EnumArticleCategory.Admisions)"
+            @onclick="() => SelectCategory(EnumArticleCategory.Admisions)">
+        Rekrutacja
+    </button>
+
+    <button type="button"
+            class="@GetTabClass(EnumArticleCategory.Exams)"
+            @onclick="() => SelectCategory(EnumArticleCategory.Exams)">
+        Egzaminy
+    </button>
+
+    <button type="button"
+            class="@GetTabClass(EnumArticleCategory.StudentCouncil)"
+            @onclick="() => SelectCategory(EnumArticleCategory.StudentCouncil)">
+        Samorząd uczniowski
     </button>
 </div>
 
