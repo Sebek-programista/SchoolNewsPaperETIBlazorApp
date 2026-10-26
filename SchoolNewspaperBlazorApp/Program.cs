@@ -138,6 +138,7 @@ namespace SchoolNewspaperBlazorApp
             Console.WriteLine(hasher.HashPassword(null!, "admin123"));
 
             app.Run();
+
         }
     }
 }
