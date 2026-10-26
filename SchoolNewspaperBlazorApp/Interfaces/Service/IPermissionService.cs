@@ -8,4 +8,5 @@ public interface IPermissionService
     Task<bool> HasPermissionAsync(EnumPermissions permission);
     Task<List<EnumPermissions>> GetUserPermissionsAsync(int userId);
     Task SetUserPermissionsAsync(int userId, IEnumerable<EnumPermissions> permissions);
+    Task SavePermissionAsync(List<EnumPermissions> permissions, int userId);
 }

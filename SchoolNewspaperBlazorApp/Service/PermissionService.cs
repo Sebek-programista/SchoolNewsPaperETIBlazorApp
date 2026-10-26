@@ -48,4 +48,9 @@ public class PermissionService : IPermissionService
         // TODO: dodać sprawdzanie ManageUser / Master, gdy uprawnienia będą już nadawane
         return _permissionRepository.SetUserPermissionsAsync(userId, permissions);
     }
+    public Task SavePermissionAsync(List<EnumPermissions> permissions, int userId)
+    {
+        // Implementacja tymczasowa, można dostosować do logiki aplikacji
+        return _permissionRepository.SetUserPermissionsAsync(userId, permissions);
+    }
 }

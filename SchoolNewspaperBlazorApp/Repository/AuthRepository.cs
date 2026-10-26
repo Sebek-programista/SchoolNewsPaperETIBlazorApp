@@ -19,13 +19,25 @@ namespace SchoolNewspaperBlazorApp.Repository
             _logger = logger;
         }
 
+        // Pobiera aktywnych użytkowników, z pominięciem kont Master.
         public async Task<Dictionary<int, string>> GetAllUsersAsync()
         {
             await using var context = await _factory.CreateDbContextAsync();
 
-            return await context.User
+            var users = await context.User
+                .AsNoTracking()
                 .Where(u => !u.IsDeleted)
-                .ToDictionaryAsync(u => u.Id, u => u.Email);
+                .Where(u => !u.UserPermissions.Any(
+                    up => up.Permission.PermissionsName == EnumPermissions.Master))
+                .OrderBy(u => u.Email)
+                .Select(u => new
+                {
+                    u.Id,
+                    u.Email
+                })
+                .ToListAsync();
+
+            return users.ToDictionary(u => u.Id, u => u.Email);
         }
 
         public async Task<User?> GetUserByIdAsync(int id)
@@ -39,6 +51,9 @@ namespace SchoolNewspaperBlazorApp.Repository
 
         public async Task<User?> GetUserByLoginOrEmailAsync(string loginOrEmail)
         {
+            if (string.IsNullOrWhiteSpace(loginOrEmail))
+                return null;
+
             await using var context = await _factory.CreateDbContextAsync();
 
             return await context.User
@@ -48,17 +63,25 @@ namespace SchoolNewspaperBlazorApp.Repository
                     (u.Login == loginOrEmail || u.Email == loginOrEmail));
         }
 
+        // Usuwa logicznie konto, nie kasując rekordu z bazy.
         public async Task DeleteUserByIdAsync(int id)
         {
             await using var context = await _factory.CreateDbContextAsync();
 
             var user = await context.User
-                .FirstOrDefaultAsync(u => u.Id == id);
+                .FirstOrDefaultAsync(u => u.Id == id && !u.IsDeleted);
 
             if (user == null)
-            {
                 throw new Exception("Konto nie istnieje.");
-            }
+
+            bool isMaster = await context.UserPermissions
+                .AnyAsync(up =>
+                    up.UserId == id &&
+                    up.Permission.PermissionsName == EnumPermissions.Master);
+
+            if (isMaster)
+                throw new InvalidOperationException(
+                    "Nie można usunąć konta Master.");
 
             user.IsDeleted = true;
 
@@ -67,7 +90,17 @@ namespace SchoolNewspaperBlazorApp.Repository
 
         public async Task AddUserAsync(User user)
         {
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+
             await using var context = await _factory.CreateDbContextAsync();
+
+            bool exists = await context.User.AnyAsync(u =>
+                u.Login == user.Login || u.Email == user.Email);
+
+            if (exists)
+                throw new InvalidOperationException(
+                    "Podany login lub adres e-mail jest już zajęty.");
 
             await context.User.AddAsync(user);
             await context.SaveChangesAsync();
@@ -81,6 +114,7 @@ namespace SchoolNewspaperBlazorApp.Repository
             await using var context = await _factory.CreateDbContextAsync();
 
             return await context.User.AnyAsync(u =>
+                !u.IsDeleted &&
                 u.Id != excludeUserId &&
                 (u.Login == login || u.Email == email));
         }
@@ -96,22 +130,27 @@ namespace SchoolNewspaperBlazorApp.Repository
             await using var context = await _factory.CreateDbContextAsync();
 
             var user = await context.User
-                .FirstOrDefaultAsync(u => u.Id == id);
+                .FirstOrDefaultAsync(u => u.Id == id && !u.IsDeleted);
 
             if (user == null)
-            {
                 throw new Exception("Konto nie istnieje.");
-            }
+
+            bool duplicate = await context.User.AnyAsync(u =>
+                !u.IsDeleted &&
+                u.Id != id &&
+                (u.Login == login || u.Email == email));
+
+            if (duplicate)
+                throw new InvalidOperationException(
+                    "Podany login lub adres e-mail jest już zajęty.");
 
             user.Login = login;
             user.Email = email;
             user.FirstName = firstName;
             user.LastName = lastName;
 
-            if (passwordHash != null)
-            {
+            if (!string.IsNullOrWhiteSpace(passwordHash))
                 user.Password = passwordHash;
-            }
 
             await context.SaveChangesAsync();
         }
@@ -127,9 +166,7 @@ namespace SchoolNewspaperBlazorApp.Repository
                 .FirstOrDefaultAsync(u => u.Id == userId && !u.IsDeleted);
 
             if (user == null)
-            {
                 throw new Exception("Konto nie istnieje.");
-            }
 
             user.Password = temporaryPasswordHash;
             user.MustChangePassword = true;
@@ -148,9 +185,7 @@ namespace SchoolNewspaperBlazorApp.Repository
                 .FirstOrDefaultAsync(u => u.Id == userId && !u.IsDeleted);
 
             if (user == null)
-            {
                 throw new Exception("Konto nie istnieje.");
-            }
 
             user.Password = newPasswordHash;
             user.MustChangePassword = false;
@@ -159,6 +194,8 @@ namespace SchoolNewspaperBlazorApp.Repository
             await context.SaveChangesAsync();
         }
 
+        // Hasło jest weryfikowane w AuthService, więc ta metoda
+        // wyszukuje użytkownika po loginie lub adresie e-mail.
         public async Task<User> CheckIfRegisteredAsync(
             string login,
             string password)
@@ -172,9 +209,7 @@ namespace SchoolNewspaperBlazorApp.Repository
                     (u.Login == login || u.Email == login));
 
             if (user == null)
-            {
                 throw new Exception("Konto nie istnieje.");
-            }
 
             return user;
         }
