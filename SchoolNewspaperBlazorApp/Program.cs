@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using SchoolNewspaperBlazorApp.Components;
 using SchoolNewspaperBlazorApp.Data;
+using SchoolNewspaperBlazorApp.Data.Seeders;
 using SchoolNewspaperBlazorApp.Interfaces.Repository;
 using SchoolNewspaperBlazorApp.Interfaces.Service;
 using SchoolNewspaperBlazorApp.Repository;
@@ -15,7 +16,7 @@ namespace SchoolNewspaperBlazorApp
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddRazorComponents()
@@ -56,11 +57,19 @@ namespace SchoolNewspaperBlazorApp
 
             var app = builder.Build();
 
+            using (var scope = app.Services.CreateScope())
+            {
+                var contextFactory = scope.ServiceProvider
+                    .GetRequiredService<IDbContextFactory<NewspaperDbContext>>();
+
+                await PermissionSeeder.SeedAsync(contextFactory);
+            }
+
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Error");
-               
+
                 app.UseHsts();
             }
             app.MapPost("/auth/login", async (
@@ -70,7 +79,7 @@ namespace SchoolNewspaperBlazorApp
                 var form = await context.Request.ReadFormAsync();
                 string email = form["Email"].ToString();
                 string password = form["Password"].ToString();
-                int userId =  await authService.CheckIfRegisteredAsync(email, password);
+                int userId = await authService.CheckIfRegisteredAsync(email, password);
                 if (userId == 0)
                 {
                     return Results.Redirect("/");
@@ -97,14 +106,14 @@ namespace SchoolNewspaperBlazorApp
                     principal);
                 return Results.Redirect("/adminPanel");
             });
-            
+
             //wylogowanie sie
             app.MapPost("/auth/logout", async (HttpContext context) =>
             {
                 await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                 return Results.Redirect("/");
             });
-            
+
             var imagesPath = Path.Combine(
                 builder.Environment.ContentRootPath,
                 "Images"
@@ -127,7 +136,7 @@ namespace SchoolNewspaperBlazorApp
 
             var hasher = new Microsoft.AspNetCore.Identity.PasswordHasher<string>();
             Console.WriteLine(hasher.HashPassword(null!, "admin123"));
-            
+
             app.Run();
         }
     }

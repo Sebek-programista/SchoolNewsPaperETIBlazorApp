@@ -18,9 +18,16 @@ namespace SchoolNewspaperBlazorApp.Repository
 
         public async Task AddArticleAsync(Article article)
         {
-            await using var context = await _factory.CreateDbContextAsync();
-            await context.Articles.AddAsync(article);
-            await context.SaveChangesAsync();
+            try
+            {
+                await using var context = await _factory.CreateDbContextAsync();
+                await context.Articles.AddAsync(article);
+                await context.SaveChangesAsync();
+            }
+            catch (Exception ex) 
+            {
+                _logger.LogError($"Bląd {ex}");
+            }
         }
 
         public async Task<List<Article>> GetAllArticlesAsync()
