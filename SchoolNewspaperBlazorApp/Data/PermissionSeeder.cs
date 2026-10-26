@@ -1,8 +1,6 @@
 ﻿
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using SchoolNewspaperBlazorApp.Data;
-using SchoolNewspaperBlazorApp.Data.Seeders;
+using Microsoft.EntityFrameworkCore;
 
 namespace SchoolNewspaperBlazorApp.Data.Seeders
 {
@@ -21,21 +19,28 @@ namespace SchoolNewspaperBlazorApp.Data.Seeders
                 { EnumPermissions.DeleteArticle, "Usuwanie artykułów" },
                 { EnumPermissions.AddUser, "Dodawanie użytkowników" },
                 { EnumPermissions.ManageUser, "Zarządzanie użytkownikami" },
-                { EnumPermissions.Master, "Master" }
+                { EnumPermissions.Master, "Master" },
+                { EnumPermissions.ManageSchoolData, "Zarządzanie danymi szkoły" },
+                { EnumPermissions.ManageSubstitutions, "Zarządzanie zastępstwami" }
             };
 
-            foreach (var permission in permissions)
+            foreach (var item in permissions)
             {
-                bool exists = await context.Permissions
-                    .AnyAsync(p => p.PermissionsName == permission.Key);
+                var existing = await context.Permissions
+                    .FirstOrDefaultAsync(
+                        p => p.PermissionsName == item.Key);
 
-                if (!exists)
+                if (existing == null)
                 {
                     context.Permissions.Add(new Permission
                     {
-                        PermissionsName = permission.Key,
-                        PermissionViewName = permission.Value
+                        PermissionsName = item.Key,
+                        PermissionViewName = item.Value
                     });
+                }
+                else
+                {
+                    existing.PermissionViewName = item.Value;
                 }
             }
 
@@ -51,17 +56,13 @@ namespace SchoolNewspaperBlazorApp.Data.Seeders
             {
                 var hasher = new PasswordHasher<string>();
 
-                string passwordHash = hasher.HashPassword(
-                    null!,
-                    adminPassword);
-
                 admin = new User
                 {
                     Email = adminEmail,
-                    Password = passwordHash,
+                    Password = hasher.HashPassword(null!, adminPassword),
                     RegisterDate = DateTime.Now,
-                    Login = "admin", // Dodano wymagane pole Login
-                    Role = new Role { RoleName = "Admin" },
+                    Login = "admin",
+                    Role = new Role { RoleName = "Admin" }
                 };
 
                 context.User.Add(admin);
@@ -74,6 +75,7 @@ namespace SchoolNewspaperBlazorApp.Data.Seeders
                 .SingleAsync();
 
             bool masterExists = await context.UserPermissions
+                .IgnoreQueryFilters()
                 .AnyAsync(up =>
                     up.UserId == admin.Id &&
                     up.PermissionId == masterPermissionId);

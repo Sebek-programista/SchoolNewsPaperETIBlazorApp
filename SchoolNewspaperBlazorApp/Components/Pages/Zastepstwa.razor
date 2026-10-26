@@ -1,0 +1,534 @@
+﻿
+@page "/zastepstwa"
+
+@using Microsoft.EntityFrameworkCore
+@using SchoolNewspaperBlazorApp.Data
+
+@inject IDbContextFactory<NewspaperDbContext> DbFactory
+
+<PageTitle>Zastępstwa | Gazetka szkolna ETI</PageTitle>
+
+<div class="substitutions-page">
+    <div class="substitutions-header">
+        <div>
+            <span class="substitutions-eyebrow">PLAN LEKCJI</span>
+            <h1>Zastępstwa</h1>
+            <p>
+                Aktualne informacje o zmianach w planie lekcji
+                i zastępstwach nauczycieli.
+            </p>
+        </div>
+
+        <div class="substitutions-date">
+            <span>Dzisiaj</span>
+            <strong>@DateTime.Today.ToString("dd.MM.yyyy")</strong>
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="substitutions-message">
+            Ładowanie zastępstw...
+        </div>
+    }
+    else if (!string.IsNullOrWhiteSpace(errorMessage))
+    {
+        <div class="substitutions-message substitutions-error">
+            @errorMessage
+        </div>
+    }
+    else if (substitutions.Count == 0)
+    {
+        <div class="substitutions-empty">
+            <div class="substitutions-empty-icon">✓</div>
+            <h2>Brak opublikowanych zastępstw</h2>
+            <p>
+                Na ten moment nie ma żadnych opublikowanych
+                zastępstw na dzisiaj ani na kolejne dni.
+            </p>
+        </div>
+    }
+    else
+    {
+        <div class="substitutions-summary">
+            Znaleziono zastępstw: <strong>@substitutions.Count</strong>
+        </div>
+
+        @foreach (var group in substitutions.GroupBy(x => x.Date.Date))
+        {
+            <section class="substitutions-day" @key="group.Key">
+                <div class="substitutions-day-heading">
+                    <div class="substitutions-day-marker"></div>
+                    <h2>
+                        @GetDateLabel(group.Key)
+                    </h2>
+                    <span>
+                        @group.Count()
+                        @(group.Count() == 1
+                            ? "zastępstwo"
+                            : group.Count() >= 2 && group.Count() <= 4
+                                ? "zastępstwa"
+                                : "zastępstw")
+                    </span>
+                </div>
+
+                <div class="substitutions-list">
+                    @foreach (var item in group.OrderBy(x => x.LessonNumber)
+                                               .ThenBy(x => x.SchoolClass.Name))
+                    {
+                        <article class="substitution-card" @key="item.Id">
+                            <div class="substitution-lesson">
+                                <span>LEKCJA</span>
+                                <strong>@item.LessonNumber</strong>
+                            </div>
+
+                            <div class="substitution-main">
+                                <div class="substitution-topline">
+                                    <span class="substitution-class">
+                                        @item.SchoolClass.Name
+                                    </span>
+
+                                    <span class="substitution-published">
+                                        Opublikowane
+                                    </span>
+                                </div>
+
+                                <h3>
+                                    @(item.SubstituteSubject?.Name
+                                        ?? item.OriginalSubject?.Name
+                                        ?? "Przedmiot nie został podany")
+                                </h3>
+
+                                <div class="substitution-details">
+                                    @if (item.AbsentTeacher is not null)
+                                    {
+                                        <div>
+                                            <span class="detail-label">
+                                                Nieobecny nauczyciel
+                                            </span>
+                                            <span class="detail-value">
+                                                @item.AbsentTeacher.FullName
+                                            </span>
+                                        </div>
+                                    }
+
+                                    @if (item.SubstituteTeacher is not null)
+                                    {
+                                        <div>
+                                            <span class="detail-label">
+                                                Zastępstwo prowadzi
+                                            </span>
+                                            <span class="detail-value">
+                                                @item.SubstituteTeacher.FullName
+                                            </span>
+                                        </div>
+                                    }
+
+                                    @if (item.OriginalSubject is not null
+                                         && item.SubstituteSubject is not null
+                                         && item.OriginalSubjectId != item.SubstituteSubjectId)
+                                    {
+                                        <div>
+                                            <span class="detail-label">
+                                                Zmiana przedmiotu
+                                            </span>
+                                            <span class="detail-value">
+                                                @item.OriginalSubject.Name
+                                                →
+                                                @item.SubstituteSubject.Name
+                                            </span>
+                                        </div>
+                                    }
+
+                                    @if (item.OriginalRoom is not null
+                                         || item.SubstituteRoom is not null)
+                                    {
+                                        <div>
+                                            <span class="detail-label">
+                                                Sala
+                                            </span>
+                                            <span class="detail-value">
+                                                @if (item.OriginalRoom is not null
+                                                     && item.SubstituteRoom is not null
+                                                     && item.OriginalRoomId != item.SubstituteRoomId)
+                                                {
+                                                    <span>
+                                                        @item.OriginalRoom.Name
+                                                        →
+                                                        @item.SubstituteRoom.Name
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    @(item.SubstituteRoom?.Name
+                                                        ?? item.OriginalRoom?.Name
+                                                        ?? "Nie podano")
+                                                }
+                                            </span>
+                                        </div>
+                                    }
+                                </div>
+
+                                @if (!string.IsNullOrWhiteSpace(item.Notes))
+                                {
+                                    <div class="substitution-notes">
+                                        <strong>Informacje dodatkowe:</strong>
+                                        <p>@item.Notes</p>
+                                    </div>
+                                }
+                            </div>
+                        </article>
+                    }
+                </div>
+            </section>
+        }
+    }
+</div>
+
+<style>
+    .substitutions-page {
+        width: min(1100px, calc(100% - 32px));
+        margin: 36px auto 64px;
+        color: #183a68;
+    }
+
+    .substitutions-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 24px;
+        margin-bottom: 32px;
+        padding: 30px;
+        border-radius: 22px;
+        background: linear-gradient(135deg, #edf4ff, #f8fbff);
+        border: 1px solid #dce8f8;
+    }
+
+    .substitutions-eyebrow {
+        display: inline-block;
+        margin-bottom: 8px;
+        color: #4778bb;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+    }
+
+    .substitutions-header h1 {
+        margin: 0 0 10px;
+        font-size: clamp(30px, 5vw, 42px);
+        font-weight: 850;
+    }
+
+    .substitutions-header p {
+        margin: 0;
+        color: #60748f;
+        line-height: 1.7;
+    }
+
+    .substitutions-date {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        padding: 18px 22px;
+        background: white;
+        border: 1px solid #dce8f8;
+        border-radius: 16px;
+    }
+
+    .substitutions-date span {
+        color: #72839b;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .substitutions-date strong {
+        font-size: 19px;
+    }
+
+    .substitutions-summary {
+        margin-bottom: 24px;
+        color: #63758d;
+        font-size: 14px;
+    }
+
+    .substitutions-summary strong {
+        color: #183a68;
+    }
+
+    .substitutions-day {
+        margin-bottom: 32px;
+    }
+
+    .substitutions-day-heading {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .substitutions-day-marker {
+        width: 5px;
+        height: 26px;
+        border-radius: 10px;
+        background: #3779d4;
+    }
+
+    .substitutions-day-heading h2 {
+        margin: 0;
+        font-size: 21px;
+        font-weight: 800;
+    }
+
+    .substitutions-day-heading > span {
+        color: #72839b;
+        font-size: 13px;
+    }
+
+    .substitutions-list {
+        display: grid;
+        gap: 14px;
+    }
+
+    .substitution-card {
+        display: grid;
+        grid-template-columns: 84px minmax(0, 1fr);
+        gap: 22px;
+        padding: 23px;
+        background: #fff;
+        border: 1px solid #e2e9f2;
+        border-radius: 18px;
+        box-shadow: 0 5px 20px rgba(24, 58, 104, 0.04);
+    }
+
+    .substitution-lesson {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        align-self: start;
+        gap: 7px;
+        min-height: 78px;
+        border-radius: 14px;
+        background: #edf4ff;
+        color: #2866b4;
+    }
+
+    .substitution-lesson span {
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.7px;
+    }
+
+    .substitution-lesson strong {
+        font-size: 29px;
+        line-height: 1;
+    }
+
+    .substitution-main {
+        min-width: 0;
+    }
+
+    .substitution-topline {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 9px;
+    }
+
+    .substitution-class {
+        padding: 5px 10px;
+        border-radius: 8px;
+        background: #f0f4f9;
+        color: #334e72;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .substitution-published {
+        color: #218354;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .substitution-main h3 {
+        margin: 0 0 17px;
+        color: #183a68;
+        font-size: 21px;
+        font-weight: 800;
+        overflow-wrap: anywhere;
+    }
+
+    .substitution-details {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px 22px;
+    }
+
+    .substitution-details > div {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        min-width: 0;
+    }
+
+    .detail-label {
+        color: #7a8ba1;
+        font-size: 12px;
+    }
+
+    .detail-value {
+        color: #304b6e;
+        font-size: 14px;
+        font-weight: 650;
+        overflow-wrap: anywhere;
+    }
+
+    .substitution-notes {
+        margin-top: 20px;
+        padding: 13px 15px;
+        border-left: 3px solid #8aaddd;
+        border-radius: 0 10px 10px 0;
+        background: #f5f8fc;
+        color: #526983;
+        font-size: 13px;
+    }
+
+    .substitution-notes p {
+        margin: 5px 0 0;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
+    .substitutions-message,
+    .substitutions-empty {
+        padding: 40px 24px;
+        text-align: center;
+        border: 1px solid #e2e9f2;
+        border-radius: 18px;
+        background: #fff;
+        color: #62758e;
+    }
+
+    .substitutions-error {
+        color: #a52828;
+        background: #fff6f6;
+        border-color: #f2d4d4;
+    }
+
+    .substitutions-empty h2 {
+        margin: 12px 0 8px;
+        color: #183a68;
+        font-size: 22px;
+    }
+
+    .substitutions-empty p {
+        margin: 0;
+        line-height: 1.7;
+    }
+
+    .substitutions-empty-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #e7f7ef;
+        color: #218354;
+        font-size: 24px;
+        font-weight: 800;
+    }
+
+    media (max-width: 650px) {
+        .substitutions-page {
+            width: min(100% - 20px, 1100px);
+            margin-top: 20px;
+        }
+
+        .substitutions-header {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 22px;
+        }
+
+        .substitutions-date {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .substitution-card {
+            grid-template-columns: 58px minmax(0, 1fr);
+            gap: 13px;
+            padding: 15px;
+        }
+
+        .substitution-lesson {
+            min-height: 66px;
+        }
+
+        .substitution-lesson strong {
+            font-size: 24px;
+        }
+
+        .substitution-details {
+            grid-template-columns: 1fr;
+            gap: 13px;
+        }
+
+        .substitution-main h3 {
+            font-size: 18px;
+        }
+    }
+</style>
+
+@code {
+    private List<Substitution> substitutions = new();
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await using var db = await DbFactory.CreateDbContextAsync();
+
+            substitutions = await db.Set<Substitution>()
+                .AsNoTracking()
+                .Where(x => x.IsPublished && x.Date >= DateTime.Today)
+                .Include(x => x.SchoolClass)
+                .Include(x => x.AbsentTeacher)
+                .Include(x => x.SubstituteTeacher)
+                .Include(x => x.OriginalSubject)
+                .Include(x => x.SubstituteSubject)
+                .Include(x => x.OriginalRoom)
+                .Include(x => x.SubstituteRoom)
+                .OrderBy(x => x.Date)
+                .ThenBy(x => x.LessonNumber)
+                .ToListAsync();
+        }
+        catch
+        {
+            errorMessage =
+                "Nie udało się pobrać zastępstw. Spróbuj ponownie później.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private static string GetDateLabel(DateTime date)
+    {
+        if (date.Date == DateTime.Today)
+            return $"Dzisiaj, {date:dd.MM.yyyy}";
+
+        if (date.Date == DateTime.Today.AddDays(1))
+            return $"Jutro, {date:dd.MM.yyyy}";
+
+        return date.ToString("dddd, dd.MM.yyyy");
+    }
+}

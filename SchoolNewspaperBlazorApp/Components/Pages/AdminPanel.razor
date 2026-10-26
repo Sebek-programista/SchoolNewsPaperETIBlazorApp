@@ -1,14 +1,18 @@
-﻿@page "/adminPanel"
+﻿
+@page "/adminPanel"
 @rendermode InteractiveServer
-@inject IPermissionService permissionService
-@inject IArticleService articleService
-@attribute [Authorize]
+
 @using Microsoft.AspNetCore.Authorization
 @using SchoolNewspaperBlazorApp.Components.Components
 @using SchoolNewspaperBlazorApp.Data
 @using SchoolNewspaperBlazorApp.Interfaces.Service
-<div class="admin-page">
 
+@inject IPermissionService permissionService
+@inject IArticleService articleService
+
+@attribute [Authorize]
+
+<div class="admin-page">
     <ToastHost />
 
     <section class="admin-header">
@@ -20,7 +24,7 @@
             <h1>Panel administratora</h1>
 
             <p>
-                Zarządzaj publikacjami i użytkownikami gazetki szkolnej
+                Zarządzaj publikacjami, użytkownikami i organizacją szkoły
                 w jednym miejscu.
             </p>
 
@@ -39,31 +43,23 @@
     {
         <div class="admin-section-heading">
             <div>
-                <span class="admin-section-heading__eyebrow">
-                    MENU GŁÓWNE
-                </span>
+                <span class="admin-section-heading__eyebrow">MENU GŁÓWNE</span>
                 <h2>Co chcesz zrobić?</h2>
                 <p>Wybierz jedną z dostępnych funkcji panelu.</p>
             </div>
         </div>
 
         <div class="admin-actions">
-            @if (canEditArticle)
+            @if (canEditArticle || canDeleteArticle)
             {
-                <button type="button"
-                        class="admin-action"
+                <button type="button" class="admin-action"
                         @onclick="LoadArticleAsync">
-
                     <span class="admin-action__icon">▤</span>
-
                     <span class="admin-action__number">01</span>
-
                     <strong>Panel artykułów</strong>
-
                     <span class="admin-action__description">
-                        Przeglądaj publikacje i zarządzaj istniejącymi artykułami.
+                        Przeglądaj publikacje i zarządzaj artykułami.
                     </span>
-
                     <span class="admin-action__footer">
                         Otwórz artykuły <span>→</span>
                     </span>
@@ -72,20 +68,14 @@
 
             @if (canAddArticle)
             {
-                <button type="button"
-                        class="admin-action"
+                <button type="button" class="admin-action"
                         @onclick="() => SetView(2)">
-
                     <span class="admin-action__icon">✎</span>
-
                     <span class="admin-action__number">02</span>
-
                     <strong>Dodaj artykuł</strong>
-
                     <span class="admin-action__description">
-                        Przygotuj nową publikację i dodaj ją do gazetki szkolnej.
+                        Przygotuj nową publikację do gazetki szkolnej.
                     </span>
-
                     <span class="admin-action__footer">
                         Utwórz artykuł <span>→</span>
                     </span>
@@ -94,20 +84,14 @@
 
             @if (canAddUser)
             {
-                <button type="button"
-                        class="admin-action"
+                <button type="button" class="admin-action"
                         @onclick="() => SetView(3)">
-
                     <span class="admin-action__icon">♙</span>
-
                     <span class="admin-action__number">03</span>
-
                     <strong>Dodaj użytkownika</strong>
-
                     <span class="admin-action__description">
-                        Dodaj konto użytkownika do systemu gazetki.
+                        Utwórz konto użytkownika.
                     </span>
-
                     <span class="admin-action__footer">
                         Dodaj konto <span>→</span>
                     </span>
@@ -116,70 +100,77 @@
 
             @if (canManageUsers)
             {
-                <button type="button"
-                        class="admin-action"
+                <button type="button" class="admin-action"
                         @onclick="() => SetView(5)">
-
                     <span class="admin-action__icon">✎</span>
-
                     <span class="admin-action__number">04</span>
-
                     <strong>Nadaj uprawnienia</strong>
-
                     <span class="admin-action__description">
-                        Edytuj uprawnienia użytkowników
+                        Zarządzaj uprawnieniami użytkowników.
                     </span>
-
                     <span class="admin-action__footer">
                         Nadaj uprawnienia <span>→</span>
                     </span>
                 </button>
-            }
 
-            @if (canManageUsers)
-            {
-                <button type="button"
-                        class="admin-action"
+                <button type="button" class="admin-action"
                         @onclick="() => SetView(6)">
-
                     <span class="admin-action__icon">★</span>
-
                     <span class="admin-action__number">05</span>
-
                     <strong>Nadaj rolę</strong>
-
                     <span class="admin-action__description">
-                        Przypisz użytkownikom role widoczne przy ich artykułach.
+                        Przypisz użytkownikom role.
                     </span>
-
                     <span class="admin-action__footer">
                         Nadaj rolę <span>→</span>
                     </span>
                 </button>
-            }
 
-            @if (canManageUsers)
-            {
-                <button type="button"
-                        class="admin-action"
+                <button type="button" class="admin-action"
                         @onclick="() => SetView(7)">
-
                     <span class="admin-action__icon">⚙</span>
-
                     <span class="admin-action__number">06</span>
-
                     <strong>Zarządzaj użytkownikami</strong>
-
                     <span class="admin-action__description">
-                        Edytuj dane kont użytkowników albo usuń konta.
+                        Edytuj dane kont użytkowników lub usuń konta.
                     </span>
-
                     <span class="admin-action__footer">
                         Zarządzaj kontami <span>→</span>
                     </span>
                 </button>
             }
 
+            @if (canManageSchoolData)
+            {
+                <button type="button" class="admin-action"
+                        @onclick="() => SetView(8)">
+                    <span class="admin-action__icon">🏫</span>
+                    <span class="admin-action__number">07</span>
+                    <strong>Dane szkoły</strong>
+                    <span class="admin-action__description">
+                        Dodawaj klasy, nauczycieli, sale i przedmioty.
+                    </span>
+                    <span class="admin-action__footer">
+                        Zarządzaj danymi <span>→</span>
+                    </span>
+                </button>
+            }
+
+            @if (canManageSubstitutions)
+            {
+                <button type="button" class="admin-action"
+                        @onclick="() => SetView(9)">
+                    <span class="admin-action__icon">📅</span>
+                    <span class="admin-action__number">08</span>
+                    <strong>Zastępstwa</strong>
+                    <span class="admin-action__description">
+                        Twórz i publikuj zastępstwa dla uczniów.
+                    </span>
+                    <span class="admin-action__footer">
+                        Zarządzaj zastępstwami <span>→</span>
+                    </span>
+                </button>
+            }
         </div>
 
         <section class="admin-section">
@@ -187,9 +178,7 @@
                 <span class="admin-section__symbol">✦</span>
                 <div>
                     <h2>Witaj w centrum zarządzania</h2>
-                    <p>
-                        Wybierz odpowiednią kartę powyżej, aby rozpocząć pracę.
-                    </p>
+                    <p>Wybierz kartę powyżej, aby rozpocząć pracę.</p>
                 </div>
             </div>
         </section>
@@ -197,8 +186,7 @@
     else
     {
         <div class="admin-back-row">
-            <button type="button"
-                    class="admin-back-button"
+            <button type="button" class="admin-back-button"
                     @onclick="() => SetView(0)">
                 <span>←</span> Wróć do panelu
             </button>
@@ -206,25 +194,32 @@
             <div class="admin-current-view">
                 <span class="site-status__dot"></span>
 
-                @if (view == 1)
+                @switch (view)
                 {
-                    <span>Zarządzanie artykułami</span>
-                }
-                else if (view == 2)
-                {
-                    <span>Tworzenie artykułu</span>
-                }
-                else if (view == 3)
-                {
-                    <span>Dodawanie użytkownika</span>
-                }
-                else if (view == 6)
-                {
-                    <span>Nadawanie ról</span>
-                }
-                else if (view == 7)
-                {
-                    <span>Zarządzanie użytkownikami</span>
+                    case 1:
+                        <span>Zarządzanie artykułami</span>
+                        break;
+                    case 2:
+                        <span>Tworzenie artykułu</span>
+                        break;
+                    case 3:
+                        <span>Dodawanie użytkownika</span>
+                        break;
+                    case 5:
+                        <span>Nadawanie uprawnień</span>
+                        break;
+                    case 6:
+                        <span>Nadawanie ról</span>
+                        break;
+                    case 7:
+                        <span>Zarządzanie użytkownikami</span>
+                        break;
+                    case 8:
+                        <span>Dane szkoły</span>
+                        break;
+                    case 9:
+                        <span>Zarządzanie zastępstwami</span>
+                        break;
                 }
             </div>
         </div>
@@ -234,17 +229,14 @@
             <section class="admin-content-panel">
                 <div class="admin-content-panel__header">
                     <div>
-                        <span class="admin-section-heading__eyebrow">
-                            PUBLIKACJE
-                        </span>
+                        <span class="admin-section-heading__eyebrow">PUBLIKACJE</span>
                         <h2>Panel artykułów</h2>
                         <p>Zarządzaj artykułami opublikowanymi w gazetce.</p>
                     </div>
 
                     @if (canAddArticle)
                     {
-                        <button type="button"
-                                class="admin-small-button"
+                        <button type="button" class="admin-small-button"
                                 @onclick="() => SetView(2)">
                             + Dodaj artykuł
                         </button>
@@ -256,14 +248,11 @@
                     <div class="admin-empty-state">
                         <span class="admin-empty-state__icon">▤</span>
                         <h3>Brak artykułów</h3>
-                        <p>
-                            Nie znaleziono publikacji.
-                        </p>
+                        <p>Nie znaleziono publikacji.</p>
 
                         @if (canAddArticle)
                         {
-                            <button type="button"
-                                    class="admin-small-button"
+                            <button type="button" class="admin-small-button"
                                     @onclick="() => SetView(2)">
                                 Dodaj pierwszy artykuł
                             </button>
@@ -287,11 +276,9 @@
             <section class="admin-content-panel">
                 <div class="admin-content-panel__header">
                     <div>
-                        <span class="admin-section-heading__eyebrow">
-                            NOWA PUBLIKACJA
-                        </span>
+                        <span class="admin-section-heading__eyebrow">NOWA PUBLIKACJA</span>
                         <h2>Dodaj artykuł</h2>
-                        <p>Uzupełnij formularz, aby przygotować publikację.</p>
+                        <p>Uzupełnij formularz nowego artykułu.</p>
                     </div>
                 </div>
 
@@ -305,9 +292,7 @@
             <section class="admin-content-panel">
                 <div class="admin-content-panel__header">
                     <div>
-                        <span class="admin-section-heading__eyebrow">
-                            KONTA
-                        </span>
+                        <span class="admin-section-heading__eyebrow">KONTA</span>
                         <h2>Dodaj użytkownika</h2>
                         <p>Utwórz nowe konto w systemie gazetki.</p>
                     </div>
@@ -327,23 +312,31 @@
         }
         else if (view == 5)
         {
-            <AsignUserPermissionCard></AsignUserPermissionCard>
+            <AsignUserPermissionCard />
         }
         else if (view == 6)
         {
-            <AssignRoleCard></AssignRoleCard>
+            <AssignRoleCard />
         }
         else if (view == 7)
         {
-            <ManageUsersCard></ManageUsersCard>
+            <ManageUsersCard />
+        }
+        else if (view == 8 && canManageSchoolData)
+        {
+            <SchoolDataAdmin />
+        }
+        else if (view == 9 && canManageSubstitutions)
+        {
+            <SubstitutionAdmin />
         }
     }
-
 </div>
 
 @code {
     public int view = 0;
-    public List<Article> articleList = new List<Article>();
+
+    public List<Article> articleList = new();
     public Article? articleToEdit;
 
     private bool canAddArticle;
@@ -351,6 +344,8 @@
     private bool canDeleteArticle;
     private bool canAddUser;
     private bool canManageUsers;
+    private bool canManageSchoolData;
+    private bool canManageSubstitutions;
 
     protected override async Task OnInitializedAsync()
     {
@@ -358,17 +353,17 @@
         canEditArticle = await HasAsync(EnumPermissions.EditArticle);
         canDeleteArticle = await HasAsync(EnumPermissions.DeleteArticle);
         canAddUser = await HasAsync(EnumPermissions.AddUser);
-        canManageUsers = true;
+        canManageUsers = await HasAsync(EnumPermissions.ManageUser);
+        canManageSchoolData = await HasAsync(EnumPermissions.ManageSchoolData);
+        canManageSubstitutions = await HasAsync(EnumPermissions.ManageSubstitutions);
     }
 
-    // Master ma dostęp do wszystkiego
     private async Task<bool> HasAsync(EnumPermissions permission)
     {
         return await permissionService.HasPermissionAsync(permission)
-               || await permissionService.HasPermissionAsync(EnumPermissions.Master);
+            || await permissionService.HasPermissionAsync(EnumPermissions.Master);
     }
 
-    // Każdy widok ma swoje uprawnienie – odmawiamy też wtedy, gdy ktoś wywoła SetView inną drogą niż przyciskiem
     private bool CanOpen(int target) => target switch
     {
         0 => true,
@@ -379,25 +374,21 @@
         5 => canManageUsers,
         6 => canManageUsers,
         7 => canManageUsers,
+        8 => canManageSchoolData,
+        9 => canManageSubstitutions,
         _ => false
     };
 
     public void SetView(int target)
     {
-        if (!CanOpen(target))
-        {
-            return;
-        }
-
-        view = target;
+        if (CanOpen(target))
+            view = target;
     }
 
     public async Task LoadArticleAsync()
     {
         if (!CanOpen(1))
-        {
             return;
-        }
 
         articleList = await articleService.GetAllArticlesAsync();
         SetView(1);
@@ -413,9 +404,7 @@
     public async Task LoadArticleToEditAsync(int id)
     {
         if (!CanOpen(4))
-        {
             return;
-        }
 
         articleToEdit = await articleService.GetArticleByIdAsync(id);
         SetView(4);

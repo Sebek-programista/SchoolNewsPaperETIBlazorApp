@@ -1,7 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @using SchoolNewspaperBlazorApp.Service
 @inherits LayoutComponentBase
-@inject AuthenticationStateProvider asp;
+@inject AuthenticationStateProvider asp
 
 <div class="site-shell">
     <header class="site-header">
@@ -35,11 +35,17 @@
                     Aktualności
                 </NavLink>
 
+                <NavLink class="main-nav__link" href="/zastepstwa">
+                    <span class="nav-icon">▦</span>
+                    Zastępstwa
+                </NavLink>
+
                 <NavLink class="main-nav__link" href="/aktualnosci?typ=Events">
                     <span class="nav-icon">▦</span>
                     Wydarzenia
                 </NavLink>
             </nav>
+
             @if (!IsLoggedIn)
             {
                 <div class="site-header__actions">
@@ -59,8 +65,12 @@
                         Witaj ponownie @displayName!
                     </span>
 
-                    <form method="post" action="/auth/logout" style="flex: 0 0 auto; margin: 0;">
-                        <button type="submit" class="header-login" style="cursor: pointer;">
+                    <form method="post"
+                          action="/auth/logout"
+                          style="flex: 0 0 auto; margin: 0;">
+                        <button type="submit"
+                                class="header-login"
+                                style="cursor: pointer;">
                             <span>♙</span>
                             Wyloguj się
                         </button>
@@ -76,6 +86,7 @@
                     <span class="site-status__dot"></span>
                     <span>Twoje szkolne centrum informacji</span>
                 </div>
+
                 @if (IsLoggedIn)
                 {
                     <NavLink class="admin-link" href="/adminPanel">
@@ -110,8 +121,19 @@
                 <NavLink href="/" Match="NavLinkMatch.All">
                     Strona główna
                 </NavLink>
-                <NavLink href="/aktualnosci">Aktualności</NavLink>
-                <NavLink href="/aktualnosci?typ=Events">Wydarzenia</NavLink>
+
+                <NavLink href="/aktualnosci">
+                    Aktualności
+                </NavLink>
+
+                <NavLink href="/zastepstwa">
+                    Zastępstwa
+                </NavLink>
+
+                <NavLink href="/aktualnosci?typ=Events">
+                    Wydarzenia
+                </NavLink>
+
                 <a href="https://technikuminformatyczne.edu.pl/"
                    target="_blank"
                    rel="noopener noreferrer">
@@ -126,7 +148,8 @@
         </div>
     </footer>
 </div>
-@code{
+
+@code {
     private bool IsLoggedIn;
     private string displayName = string.Empty;
 
@@ -134,13 +157,15 @@
     {
         var authState = await asp.GetAuthenticationStateAsync();
         var user = authState.User;
+
         IsLoggedIn = user.Identity?.IsAuthenticated ?? false;
 
         if (IsLoggedIn)
         {
             var fullName = user.FindFirst("FullName")?.Value;
-            displayName = fullName ?? user.FindFirst("Name")?.Value;
+            displayName = fullName
+                ?? user.FindFirst("Name")?.Value
+                ?? string.Empty;
         }
     }
-
 }

@@ -1,0 +1,972 @@
+﻿
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.JSInterop
+@using SchoolNewspaperBlazorApp.Data
+@inject IDbContextFactory<NewspaperDbContext> DbFactory
+@inject IJSRuntime JS
+
+<div class="admin-content-panel">
+    <div class="admin-content-panel__header">
+        <div>
+            <span class="admin-section-heading__eyebrow">PANEL ADMINISTRATORA</span>
+            <h2>Dane szkoły</h2>
+            <p>Zarządzaj klasami, nauczycielami, salami i przedmiotami.</p>
+        </div>
+    </div>
+
+    <div class="school-data-tabs">
+        <button type="button"
+                class="school-data-tab @(tab == 0 ? "active" : "")"
+                @onclick="() => SelectTab(0)">
+            <span>01</span> Klasy
+        </button>
+
+        <button type="button"
+                class="school-data-tab @(tab == 1 ? "active" : "")"
+                @onclick="() => SelectTab(1)">
+            <span>02</span> Nauczyciele
+        </button>
+
+        <button type="button"
+                class="school-data-tab @(tab == 2 ? "active" : "")"
+                @onclick="() => SelectTab(2)">
+            <span>03</span> Sale
+        </button>
+
+        <button type="button"
+                class="school-data-tab @(tab == 3 ? "active" : "")"
+                @onclick="() => SelectTab(3)">
+            <span>04</span> Przedmioty
+        </button>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(message))
+    {
+        <div class="school-data-message @(messageIsError ? "error" : "success")"
+             role="status">
+            <span>@(messageIsError ? "!" : "✓")</span>
+            @message
+        </div>
+    }
+
+    @if (isLoading)
+    {
+        <div class="school-data-empty">
+            Ładowanie danych...
+        </div>
+    }
+    else if (tab == 0)
+    {
+        <section class="school-data-section">
+            <h3>@(editingId.HasValue ? "Edytuj klasę" : "Dodaj klasę")</h3>
+
+            <EditForm Model="classForm" OnValidSubmit="SaveClassAsync">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="school-data-form-grid">
+                    <div class="school-data-field">
+                        <label for="className">Nazwa klasy</label>
+                        <InputText id="className"
+                                   class="form-control"
+                                   @bind-Value="classForm.Name"
+                                   placeholder="Np. 2TP" />
+                        <ValidationMessage For="@(() => classForm.Name)" />
+                    </div>
+                </div>
+
+                <div class="school-data-form-actions">
+                    <button type="submit"
+                            class="admin-primary-button"
+                            disabled="@isProcessing">
+                        @(isProcessing ? "Zapisywanie..." : editingId.HasValue ? "Zapisz zmiany" : "＋ Dodaj klasę")
+                    </button>
+
+                    @if (editingId.HasValue)
+                    {
+                        <button type="button"
+                                class="admin-cancel-button"
+                                @onclick="CancelEdit"
+                                disabled="@isProcessing">
+                            Anuluj
+                        </button>
+                    }
+                </div>
+            </EditForm>
+
+            <h3 class="school-data-list-heading">Lista klas <span>@classes.Count</span></h3>
+
+            @if (classes.Count == 0)
+            {
+                <div class="school-data-empty">Brak klas do wyświetlenia.</div>
+            }
+            else
+            {
+                <ul class="admin-record-list">
+                    @foreach (var item in classes)
+                    {
+                        <li @key="item.Id">
+                            <div class="school-data-record">
+                                <strong>@item.Name</strong>
+                                <span class="school-data-status @(item.IsActive ? "is-active" : "is-inactive")">
+                                    @(item.IsActive ? "Aktywna" : "Nieaktywna")
+                                </span>
+                            </div>
+
+                            <div class="school-data-actions">
+                                <button type="button"
+                                        class="admin-edit-button"
+                                        @onclick="() => EditClass(item)"
+                                        disabled="@isProcessing">
+                                    Edytuj
+                                </button>
+                                <button type="button"
+                                        class="admin-status-button"
+                                        @onclick="() => SetClassActiveAsync(item.Id, !item.IsActive)"
+                                        disabled="@isProcessing">
+                                    @(item.IsActive ? "Dezaktywuj" : "Aktywuj")
+                                </button>
+                                <button type="button"
+                                        class="admin-delete-button"
+                                        @onclick="() => DeleteClassAsync(item.Id)"
+                                        disabled="@isProcessing">
+                                    Usuń
+                                </button>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+    }
+    else if (tab == 1)
+    {
+        <section class="school-data-section">
+            <h3>@(editingId.HasValue ? "Edytuj nauczyciela" : "Dodaj nauczyciela")</h3>
+
+            <EditForm Model="teacherForm" OnValidSubmit="SaveTeacherAsync">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="school-data-form-grid">
+                    <div class="school-data-field">
+                        <label for="teacherFirstName">Imię</label>
+                        <InputText id="teacherFirstName"
+                                   class="form-control"
+                                   @bind-Value="teacherForm.FirstName"
+                                   placeholder="Imię nauczyciela" />
+                        <ValidationMessage For="@(() => teacherForm.FirstName)" />
+                    </div>
+
+                    <div class="school-data-field">
+                        <label for="teacherLastName">Nazwisko</label>
+                        <InputText id="teacherLastName"
+                                   class="form-control"
+                                   @bind-Value="teacherForm.LastName"
+                                   placeholder="Nazwisko nauczyciela" />
+                        <ValidationMessage For="@(() => teacherForm.LastName)" />
+                    </div>
+
+                    <div class="school-data-field school-data-field-full">
+                        <label for="teacherEmail">Adres e-mail</label>
+                        <InputText id="teacherEmail"
+                                   class="form-control"
+                                   type="email"
+                                   @bind-Value="teacherForm.Email"
+                                   placeholder="nauczyciel@szkola.pl" />
+                        <ValidationMessage For="@(() => teacherForm.Email)" />
+                    </div>
+                </div>
+
+                <div class="school-data-form-actions">
+                    <button type="submit"
+                            class="admin-primary-button"
+                            disabled="@isProcessing">
+                        @(isProcessing ? "Zapisywanie..." : editingId.HasValue ? "Zapisz zmiany" : "＋ Dodaj nauczyciela")
+                    </button>
+
+                    @if (editingId.HasValue)
+                    {
+                        <button type="button"
+                                class="admin-cancel-button"
+                                @onclick="CancelEdit"
+                                disabled="@isProcessing">
+                            Anuluj
+                        </button>
+                    }
+                </div>
+            </EditForm>
+
+            <h3 class="school-data-list-heading">Lista nauczycieli <span>@teachers.Count</span></h3>
+
+            @if (teachers.Count == 0)
+            {
+                <div class="school-data-empty">Brak nauczycieli do wyświetlenia.</div>
+            }
+            else
+            {
+                <ul class="admin-record-list">
+                    @foreach (var item in teachers)
+                    {
+                        <li @key="item.Id">
+                            <div class="school-data-record">
+                                <strong>@item.FirstName @item.LastName</strong>
+                                @if (!string.IsNullOrWhiteSpace(item.Email))
+                                {
+                                    <span>@item.Email</span>
+                                }
+                                <span class="school-data-status @(item.IsActive ? "is-active" : "is-inactive")">
+                                    @(item.IsActive ? "Aktywny" : "Nieaktywny")
+                                </span>
+                            </div>
+
+                            <div class="school-data-actions">
+                                <button type="button"
+                                        class="admin-edit-button"
+                                        @onclick="() => EditTeacher(item)"
+                                        disabled="@isProcessing">
+                                    Edytuj
+                                </button>
+                                <button type="button"
+                                        class="admin-status-button"
+                                        @onclick="() => SetTeacherActiveAsync(item.Id, !item.IsActive)"
+                                        disabled="@isProcessing">
+                                    @(item.IsActive ? "Dezaktywuj" : "Aktywuj")
+                                </button>
+                                <button type="button"
+                                        class="admin-delete-button"
+                                        @onclick="() => DeleteTeacherAsync(item.Id)"
+                                        disabled="@isProcessing">
+                                    Usuń
+                                </button>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+    }
+    else if (tab == 2)
+    {
+        <section class="school-data-section">
+            <h3>@(editingId.HasValue ? "Edytuj salę" : "Dodaj salę")</h3>
+
+            <EditForm Model="roomForm" OnValidSubmit="SaveRoomAsync">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="school-data-form-grid">
+                    <div class="school-data-field">
+                        <label for="roomName">Nazwa sali</label>
+                        <InputText id="roomName"
+                                   class="form-control"
+                                   @bind-Value="roomForm.Name"
+                                   placeholder="Np. Sala 12" />
+                        <ValidationMessage For="@(() => roomForm.Name)" />
+                    </div>
+
+                    <div class="school-data-field">
+                        <label for="roomDescription">Opis sali</label>
+                        <InputText id="roomDescription"
+                                   class="form-control"
+                                   @bind-Value="roomForm.Description"
+                                   placeholder="Np. Pracownia komputerowa" />
+                        <ValidationMessage For="@(() => roomForm.Description)" />
+                    </div>
+                </div>
+
+                <div class="school-data-form-actions">
+                    <button type="submit"
+                            class="admin-primary-button"
+                            disabled="@isProcessing">
+                        @(isProcessing ? "Zapisywanie..." : editingId.HasValue ? "Zapisz zmiany" : "＋ Dodaj salę")
+                    </button>
+
+                    @if (editingId.HasValue)
+                    {
+                        <button type="button"
+                                class="admin-cancel-button"
+                                @onclick="CancelEdit"
+                                disabled="@isProcessing">
+                            Anuluj
+                        </button>
+                    }
+                </div>
+            </EditForm>
+
+            <h3 class="school-data-list-heading">Lista sal <span>@rooms.Count</span></h3>
+
+            @if (rooms.Count == 0)
+            {
+                <div class="school-data-empty">Brak sal do wyświetlenia.</div>
+            }
+            else
+            {
+                <ul class="admin-record-list">
+                    @foreach (var item in rooms)
+                    {
+                        <li @key="item.Id">
+                            <div class="school-data-record">
+                                <strong>@item.Name</strong>
+                                @if (!string.IsNullOrWhiteSpace(item.Description))
+                                {
+                                    <span>@item.Description</span>
+                                }
+                                <span class="school-data-status @(item.IsActive ? "is-active" : "is-inactive")">
+                                    @(item.IsActive ? "Aktywna" : "Nieaktywna")
+                                </span>
+                            </div>
+
+                            <div class="school-data-actions">
+                                <button type="button"
+                                        class="admin-edit-button"
+                                        @onclick="() => EditRoom(item)"
+                                        disabled="@isProcessing">
+                                    Edytuj
+                                </button>
+                                <button type="button"
+                                        class="admin-status-button"
+                                        @onclick="() => SetRoomActiveAsync(item.Id, !item.IsActive)"
+                                        disabled="@isProcessing">
+                                    @(item.IsActive ? "Dezaktywuj" : "Aktywuj")
+                                </button>
+                                <button type="button"
+                                        class="admin-delete-button"
+                                        @onclick="() => DeleteRoomAsync(item.Id)"
+                                        disabled="@isProcessing">
+                                    Usuń
+                                </button>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+    }
+    else
+    {
+        <section class="school-data-section">
+            <h3>@(editingId.HasValue ? "Edytuj przedmiot" : "Dodaj przedmiot")</h3>
+
+            <EditForm Model="subjectForm" OnValidSubmit="SaveSubjectAsync">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="school-data-form-grid">
+                    <div class="school-data-field">
+                        <label for="subjectName">Nazwa przedmiotu</label>
+                        <InputText id="subjectName"
+                                   class="form-control"
+                                   @bind-Value="subjectForm.Name"
+                                   placeholder="Np. Programowanie" />
+                        <ValidationMessage For="@(() => subjectForm.Name)" />
+                    </div>
+                </div>
+
+                <div class="school-data-form-actions">
+                    <button type="submit"
+                            class="admin-primary-button"
+                            disabled="@isProcessing">
+                        @(isProcessing ? "Zapisywanie..." : editingId.HasValue ? "Zapisz zmiany" : "＋ Dodaj przedmiot")
+                    </button>
+
+                    @if (editingId.HasValue)
+                    {
+                        <button type="button"
+                                class="admin-cancel-button"
+                                @onclick="CancelEdit"
+                                disabled="@isProcessing">
+                            Anuluj
+                        </button>
+                    }
+                </div>
+            </EditForm>
+
+            <h3 class="school-data-list-heading">Lista przedmiotów <span>@subjects.Count</span></h3>
+
+            @if (subjects.Count == 0)
+            {
+                <div class="school-data-empty">Brak przedmiotów do wyświetlenia.</div>
+            }
+            else
+            {
+                <ul class="admin-record-list">
+                    @foreach (var item in subjects)
+                    {
+                        <li @key="item.Id">
+                            <div class="school-data-record">
+                                <strong>@item.Name</strong>
+                                <span class="school-data-status @(item.IsActive ? "is-active" : "is-inactive")">
+                                    @(item.IsActive ? "Aktywny" : "Nieaktywny")
+                                </span>
+                            </div>
+
+                            <div class="school-data-actions">
+                                <button type="button"
+                                        class="admin-edit-button"
+                                        @onclick="() => EditSubject(item)"
+                                        disabled="@isProcessing">
+                                    Edytuj
+                                </button>
+                                <button type="button"
+                                        class="admin-status-button"
+                                        @onclick="() => SetSubjectActiveAsync(item.Id, !item.IsActive)"
+                                        disabled="@isProcessing">
+                                    @(item.IsActive ? "Dezaktywuj" : "Aktywuj")
+                                </button>
+                                <button type="button"
+                                        class="admin-delete-button"
+                                        @onclick="() => DeleteSubjectAsync(item.Id)"
+                                        disabled="@isProcessing">
+                                    Usuń
+                                </button>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+    }
+</div>
+
+@code {
+    private int tab;
+    private int? editingId;
+    private bool isLoading = true;
+    private bool isProcessing;
+    private bool messageIsError;
+    private string message = "";
+
+    private List<SchoolClass> classes = new();
+    private List<Teacher> teachers = new();
+    private List<SchoolRoom> rooms = new();
+    private List<SchoolSubject> subjects = new();
+
+    private ClassInput classForm = new();
+    private TeacherInput teacherForm = new();
+    private RoomInput roomForm = new();
+    private SubjectInput subjectForm = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private void SelectTab(int value)
+    {
+        if (isProcessing)
+            return;
+
+        tab = value;
+        CancelEdit();
+        ClearMessage();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        isLoading = true;
+
+        try
+        {
+            await using var db = await DbFactory.CreateDbContextAsync();
+
+            classes = await db.SchoolClasses
+                .AsNoTracking()
+                .OrderBy(x => x.Name)
+                .ToListAsync();
+
+            teachers = await db.Teachers
+                .AsNoTracking()
+                .OrderBy(x => x.LastName)
+                .ThenBy(x => x.FirstName)
+                .ToListAsync();
+
+            rooms = await db.SchoolRooms
+                .AsNoTracking()
+                .OrderBy(x => x.Name)
+                .ToListAsync();
+
+            subjects = await db.SchoolSubjects
+                .AsNoTracking()
+                .OrderBy(x => x.Name)
+                .ToListAsync();
+        }
+        catch (Exception)
+        {
+            ShowError("Nie udało się pobrać danych. Sprawdź połączenie z bazą danych.");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    // =========================
+    // EDYCJA — OTWIERANIE
+    // =========================
+
+    private void EditClass(SchoolClass item)
+    {
+        ClearMessage();
+        editingId = item.Id;
+        classForm = new ClassInput { Name = item.Name };
+    }
+
+    private void EditTeacher(Teacher item)
+    {
+        ClearMessage();
+        editingId = item.Id;
+        teacherForm = new TeacherInput
+        {
+            FirstName = item.FirstName,
+            LastName = item.LastName,
+            Email = item.Email ?? ""
+        };
+    }
+
+    private void EditRoom(SchoolRoom item)
+    {
+        ClearMessage();
+        editingId = item.Id;
+        roomForm = new RoomInput
+        {
+            Name = item.Name,
+            Description = item.Description ?? ""
+        };
+    }
+
+    private void EditSubject(SchoolSubject item)
+    {
+        ClearMessage();
+        editingId = item.Id;
+        subjectForm = new SubjectInput { Name = item.Name };
+    }
+
+    private void CancelEdit()
+    {
+        editingId = null;
+        classForm = new ClassInput();
+        teacherForm = new TeacherInput();
+        roomForm = new RoomInput();
+        subjectForm = new SubjectInput();
+    }
+
+    // =========================
+    // ZAPIS KLASY
+    // =========================
+
+    private async Task SaveClassAsync()
+    {
+        var name = classForm.Name.Trim();
+
+        await RunDatabaseActionAsync(async db =>
+        {
+            var duplicate = await db.SchoolClasses.AnyAsync(x =>
+                x.Name.ToLower() == name.ToLower() &&
+                (!editingId.HasValue || x.Id != editingId.Value));
+
+            if (duplicate)
+            {
+                ShowError("Klasa o takiej nazwie już istnieje.");
+                return false;
+            }
+
+            if (editingId.HasValue)
+            {
+                var item = await db.SchoolClasses.FindAsync(editingId.Value);
+
+                if (item is null)
+                {
+                    ShowError("Nie znaleziono klasy do edycji.");
+                    return false;
+                }
+
+                item.Name = name;
+            }
+            else
+            {
+                db.SchoolClasses.Add(new SchoolClass { Name = name });
+            }
+
+            await db.SaveChangesAsync();
+            return true;
+        }, editingId.HasValue ? "Zapisano zmiany w klasie." : "Dodano klasę.");
+    }
+
+    // =========================
+    // ZAPIS NAUCZYCIELA
+    // =========================
+
+    private async Task SaveTeacherAsync()
+    {
+        var firstName = teacherForm.FirstName.Trim();
+        var lastName = teacherForm.LastName.Trim();
+        var email = string.IsNullOrWhiteSpace(teacherForm.Email)
+            ? null
+            : teacherForm.Email.Trim();
+
+        await RunDatabaseActionAsync(async db =>
+        {
+            if (editingId.HasValue)
+            {
+                var item = await db.Teachers.FindAsync(editingId.Value);
+
+                if (item is null)
+                {
+                    ShowError("Nie znaleziono nauczyciela do edycji.");
+                    return false;
+                }
+
+                item.FirstName = firstName;
+                item.LastName = lastName;
+                item.Email = email;
+            }
+            else
+            {
+                db.Teachers.Add(new Teacher
+                {
+                    FirstName = firstName,
+                    LastName = lastName,
+                    Email = email
+                });
+            }
+
+            await db.SaveChangesAsync();
+            return true;
+        }, editingId.HasValue ? "Zapisano zmiany w danych nauczyciela." : "Dodano nauczyciela.");
+    }
+
+    // =========================
+    // ZAPIS SALI
+    // =========================
+
+    private async Task SaveRoomAsync()
+    {
+        var name = roomForm.Name.Trim();
+        var description = string.IsNullOrWhiteSpace(roomForm.Description)
+            ? null
+            : roomForm.Description.Trim();
+
+        await RunDatabaseActionAsync(async db =>
+        {
+            var duplicate = await db.SchoolRooms.AnyAsync(x =>
+                x.Name.ToLower() == name.ToLower() &&
+                (!editingId.HasValue || x.Id != editingId.Value));
+
+            if (duplicate)
+            {
+                ShowError("Sala o takiej nazwie już istnieje.");
+                return false;
+            }
+
+            if (editingId.HasValue)
+            {
+                var item = await db.SchoolRooms.FindAsync(editingId.Value);
+
+                if (item is null)
+                {
+                    ShowError("Nie znaleziono sali do edycji.");
+                    return false;
+                }
+
+                item.Name = name;
+                item.Description = description;
+            }
+            else
+            {
+                db.SchoolRooms.Add(new SchoolRoom
+                {
+                    Name = name,
+                    Description = description
+                });
+            }
+
+            await db.SaveChangesAsync();
+            return true;
+        }, editingId.HasValue ? "Zapisano zmiany w sali." : "Dodano salę.");
+    }
+
+    // =========================
+    // ZAPIS PRZEDMIOTU
+    // =========================
+
+    private async Task SaveSubjectAsync()
+    {
+        var name = subjectForm.Name.Trim();
+
+        await RunDatabaseActionAsync(async db =>
+        {
+            var duplicate = await db.SchoolSubjects.AnyAsync(x =>
+                x.Name.ToLower() == name.ToLower() &&
+                (!editingId.HasValue || x.Id != editingId.Value));
+
+            if (duplicate)
+            {
+                ShowError("Przedmiot o takiej nazwie już istnieje.");
+                return false;
+            }
+
+            if (editingId.HasValue)
+            {
+                var item = await db.SchoolSubjects.FindAsync(editingId.Value);
+
+                if (item is null)
+                {
+                    ShowError("Nie znaleziono przedmiotu do edycji.");
+                    return false;
+                }
+
+                item.Name = name;
+            }
+            else
+            {
+                db.SchoolSubjects.Add(new SchoolSubject { Name = name });
+            }
+
+            await db.SaveChangesAsync();
+            return true;
+        }, editingId.HasValue ? "Zapisano zmiany w przedmiocie." : "Dodano przedmiot.");
+    }
+
+    // =========================
+    // AKTYWACJA / DEZAKTYWACJA
+    // =========================
+
+    private Task SetClassActiveAsync(int id, bool active) =>
+        SetActiveAsync(db => db.SchoolClasses.FindAsync(id).AsTask(),
+            item => item.IsActive = active,
+            active ? "Aktywowano klasę." : "Dezaktywowano klasę.");
+
+    private Task SetTeacherActiveAsync(int id, bool active) =>
+        SetActiveAsync(db => db.Teachers.FindAsync(id).AsTask(),
+            item => item.IsActive = active,
+            active ? "Aktywowano nauczyciela." : "Dezaktywowano nauczyciela.");
+
+    private Task SetRoomActiveAsync(int id, bool active) =>
+        SetActiveAsync(db => db.SchoolRooms.FindAsync(id).AsTask(),
+            item => item.IsActive = active,
+            active ? "Aktywowano salę." : "Dezaktywowano salę.");
+
+    private Task SetSubjectActiveAsync(int id, bool active) =>
+        SetActiveAsync(db => db.SchoolSubjects.FindAsync(id).AsTask(),
+            item => item.IsActive = active,
+            active ? "Aktywowano przedmiot." : "Dezaktywowano przedmiot.");
+
+    private async Task SetActiveAsync<T>(
+        Func<NewspaperDbContext, Task<T?>> find,
+        Action<T> setActive,
+        string successMessage) where T : class
+    {
+        await RunDatabaseActionAsync(async db =>
+        {
+            var item = await find(db);
+
+            if (item is null)
+            {
+                ShowError("Nie znaleziono rekordu.");
+                return false;
+            }
+
+            setActive(item);
+            await db.SaveChangesAsync();
+            return true;
+        }, successMessage);
+    }
+
+    // =========================
+    // USUWANIE
+    // =========================
+
+    private async Task DeleteClassAsync(int id)
+    {
+        if (!await ConfirmDeleteAsync("klasę"))
+            return;
+
+        await RunDatabaseActionAsync(async db =>
+        {
+            var item = await db.SchoolClasses.FindAsync(id);
+
+            if (item is null)
+            {
+                ShowError("Nie znaleziono klasy.");
+                return false;
+            }
+
+            db.SchoolClasses.Remove(item);
+            await db.SaveChangesAsync();
+            return true;
+        }, "Usunięto klasę.");
+    }
+
+    private async Task DeleteTeacherAsync(int id)
+    {
+        if (!await ConfirmDeleteAsync("nauczyciela"))
+            return;
+
+        await RunDatabaseActionAsync(async db =>
+        {
+            var item = await db.Teachers.FindAsync(id);
+
+            if (item is null)
+            {
+                ShowError("Nie znaleziono nauczyciela.");
+                return false;
+            }
+
+            db.Teachers.Remove(item);
+            await db.SaveChangesAsync();
+            return true;
+        }, "Usunięto nauczyciela.");
+    }
+
+    private async Task DeleteRoomAsync(int id)
+    {
+        if (!await ConfirmDeleteAsync("salę"))
+            return;
+
+        await RunDatabaseActionAsync(async db =>
+        {
+            var item = await db.SchoolRooms.FindAsync(id);
+
+            if (item is null)
+            {
+                ShowError("Nie znaleziono sali.");
+                return false;
+            }
+
+            db.SchoolRooms.Remove(item);
+            await db.SaveChangesAsync();
+            return true;
+        }, "Usunięto salę.");
+    }
+
+    private async Task DeleteSubjectAsync(int id)
+    {
+        if (!await ConfirmDeleteAsync("przedmiot"))
+            return;
+
+        await RunDatabaseActionAsync(async db =>
+        {
+            var item = await db.SchoolSubjects.FindAsync(id);
+
+            if (item is null)
+            {
+                ShowError("Nie znaleziono przedmiotu.");
+                return false;
+            }
+
+            db.SchoolSubjects.Remove(item);
+            await db.SaveChangesAsync();
+            return true;
+        }, "Usunięto przedmiot.");
+    }
+
+    private async Task<bool> ConfirmDeleteAsync(string recordName)
+    {
+        return await JS.InvokeAsync<bool>(
+            "confirm",
+            $"Czy na pewno chcesz usunąć {recordName}? Tej operacji nie można cofnąć.");
+    }
+
+    // =========================
+    // WSPÓLNA OBSŁUGA BAZY
+    // =========================
+
+    private async Task RunDatabaseActionAsync(
+        Func<NewspaperDbContext, Task<bool>> action,
+        string successMessage)
+    {
+        if (isProcessing)
+            return;
+
+        isProcessing = true;
+        ClearMessage();
+
+        try
+        {
+            await using var db = await DbFactory.CreateDbContextAsync();
+
+            var succeeded = await action(db);
+
+            if (succeeded)
+            {
+                CancelEdit();
+                ShowSuccess(successMessage);
+                await LoadDataAsync();
+            }
+        }
+        catch (DbUpdateException)
+        {
+            ShowError(
+                "Nie udało się zapisać zmian. Rekord może być powiązany z innymi danymi.");
+        }
+        catch (Exception)
+        {
+            ShowError("Wystąpił błąd podczas wykonywania operacji.");
+        }
+        finally
+        {
+            isProcessing = false;
+        }
+    }
+
+    private void ShowSuccess(string text)
+    {
+        message = text;
+        messageIsError = false;
+    }
+
+    private void ShowError(string text)
+    {
+        message = text;
+        messageIsError = true;
+    }
+
+    private void ClearMessage()
+    {
+        message = "";
+        messageIsError = false;
+    }
+
+    // =========================
+    // MODELE FORMULARZY
+    // =========================
+
+    private sealed class ClassInput
+    {
+        [Required(ErrorMessage = "Podaj nazwę klasy.")]
+        [MaxLength(30, ErrorMessage = "Nazwa klasy może mieć maksymalnie 30 znaków.")]
+        public string Name { get; set; } = "";
+    }
+
+    private sealed class TeacherInput
+    {
+        [Required(ErrorMessage = "Podaj imię.")]
+        [MaxLength(80, ErrorMessage = "Imię może mieć maksymalnie 80 znaków.")]
+        public string FirstName { get; set; } = "";
+
+        [Required(ErrorMessage = "Podaj nazwisko.")]
+        [MaxLength(100, ErrorMessage = "Nazwisko może mieć maksymalnie 100 znaków.")]
+        public string LastName { get; set; } = "";
+
+        [EmailAddress(ErrorMessage = "Podaj prawidłowy adres e-mail.")]
+        public string? Email { get; set; }
+    }
+
+    private sealed class RoomInput
+    {
+        [Required(ErrorMessage = "Podaj nazwę sali.")]
+        [MaxLength(30, ErrorMessage = "Nazwa sali może mieć maksymalnie 30 znaków.")]
+        public string Name { get; set; } = "";
+
+        public string? Description { get; set; }
+    }
+
+    private sealed class SubjectInput
+    {
+        [Required(ErrorMessage = "Podaj nazwę przedmiotu.")]
+        [MaxLength(100, ErrorMessage = "Nazwa przedmiotu może mieć maksymalnie 100 znaków.")]
+        public string Name { get; set; } = "";
+    }
+}

@@ -1,0 +1,418 @@
+﻿
+@using Microsoft.EntityFrameworkCore
+@using SchoolNewspaperBlazorApp.Data
+@using SchoolNewspaperBlazorApp.Interfaces.Service
+@inject IDbContextFactory<NewspaperDbContext> DbFactory
+@inject IPermissionService PermissionService
+
+<div class="admin-content-panel">
+    <div class="admin-content-panel__header">
+        <div>
+            <span class="admin-section-heading__eyebrow">ORGANIZACJA LEKCJI</span>
+            <h2>Zastępstwa</h2>
+            <p>Dodawaj, publikuj i zarządzaj zmianami w planie lekcji.</p>
+        </div>
+    </div>
+
+    @if (!authorized)
+    {
+        <p role="alert">Nie masz uprawnień do zarządzania zastępstwami.</p>
+    }
+    else
+    {
+        @if (!string.IsNullOrWhiteSpace(message))
+        {
+            <p role="status">@message</p>
+        }
+
+        <EditForm Model="form" OnValidSubmit="SaveAsync">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <h3>@(form.Id == 0 ? "Dodaj zastępstwo" : "Edytuj zastępstwo")</h3>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;">
+                <div>
+                    <label>Data</label>
+                    <InputDate class="form-control" @bind-Value="form.Date" />
+                </div>
+
+                <div>
+                    <label>Numer lekcji</label>
+                    <InputNumber class="form-control" @bind-Value="form.LessonNumber" />
+                </div>
+
+                <div>
+                    <label>Klasa</label>
+                    <InputSelect class="form-control" @bind-Value="form.SchoolClassId">
+                        <option value="0">-- Wybierz klasę --</option>
+                        @foreach (var item in classes)
+                        {
+                            <option value="@item.Id">@item.Name</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <div>
+                    <label>Nauczyciel nieobecny</label>
+                    <InputSelect class="form-control" @bind-Value="form.AbsentTeacherId">
+                        <option value="">-- Brak / nie dotyczy --</option>
+                        @foreach (var item in teachers)
+                        {
+                            <option value="@item.Id">@item.FullName</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <div>
+                    <label>Nauczyciel zastępujący</label>
+                    <InputSelect class="form-control" @bind-Value="form.SubstituteTeacherId">
+                        <option value="">-- Nie wyznaczono --</option>
+                        @foreach (var item in teachers)
+                        {
+                            <option value="@item.Id">@item.FullName</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <div>
+                    <label>Przedmiot pierwotny</label>
+                    <InputSelect class="form-control" @bind-Value="form.OriginalSubjectId">
+                        <option value="">-- Nie określono --</option>
+                        @foreach (var item in subjects)
+                        {
+                            <option value="@item.Id">@item.Name</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <div>
+                    <label>Przedmiot po zmianie</label>
+                    <InputSelect class="form-control" @bind-Value="form.SubstituteSubjectId">
+                        <option value="">-- Bez zmiany --</option>
+                        @foreach (var item in subjects)
+                        {
+                            <option value="@item.Id">@item.Name</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <div>
+                    <label>Sala pierwotna</label>
+                    <InputSelect class="form-control" @bind-Value="form.OriginalRoomId">
+                        <option value="">-- Nie określono --</option>
+                        @foreach (var item in rooms)
+                        {
+                            <option value="@item.Id">@item.Name</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <div>
+                    <label>Sala po zmianie</label>
+                    <InputSelect class="form-control" @bind-Value="form.SubstituteRoomId">
+                        <option value="">-- Bez zmiany --</option>
+                        @foreach (var item in rooms)
+                        {
+                            <option value="@item.Id">@item.Name</option>
+                        }
+                    </InputSelect>
+                </div>
+            </div>
+
+            <div style="margin-top:16px;">
+                <label>Informacje dodatkowe</label>
+                <InputTextArea class="form-control"
+                               @bind-Value="form.Notes"
+                               rows="4"
+                               placeholder="Np. lekcja odbywa się w innej sali albo zostaje odwołana." />
+            </div>
+
+            <div style="margin-top:16px;">
+                <label style="display:flex;align-items:center;gap:10px;">
+                    <InputCheckbox @bind-Value="form.IsPublished" />
+                    Opublikuj zastępstwo uczniom
+                </label>
+            </div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;">
+                <button type="submit" class="admin-small-button">
+                    @(form.Id == 0 ? "Zapisz zastępstwo" : "Zapisz zmiany")
+                </button>
+
+                <button type="button" class="admin-small-button" @onclick="ResetForm">
+                    Wyczyść formularz
+                </button>
+            </div>
+        </EditForm>
+
+        <hr style="margin:28px 0;" />
+
+        <h3>Istniejące zastępstwa</h3>
+
+        @if (substitutions.Count == 0)
+        {
+            <p>Nie dodano jeszcze żadnych zastępstw.</p>
+        }
+        else
+        {
+            <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left;padding:10px;">Data</th>
+                            <th style="text-align:left;padding:10px;">Lekcja</th>
+                            <th style="text-align:left;padding:10px;">Klasa</th>
+                            <th style="text-align:left;padding:10px;">Nauczyciel zastępujący</th>
+                            <th style="text-align:left;padding:10px;">Status</th>
+                            <th style="text-align:left;padding:10px;">Akcje</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in substitutions)
+                        {
+                            <tr @key="item.Id">
+                                <td style="padding:10px;">@item.Date.ToString("dd.MM.yyyy")</td>
+                                <td style="padding:10px;">@item.LessonNumber</td>
+                                <td style="padding:10px;">@item.SchoolClass.Name</td>
+                                <td style="padding:10px;">@(item.SubstituteTeacher?.FullName ?? "Nie wyznaczono")</td>
+                                <td style="padding:10px;">@(item.IsPublished ? "Opublikowane" : "Szkic")</td>
+                                <td style="padding:10px;">
+                                    <button type="button"
+                                            class="admin-small-button"
+                                            @onclick="() => EditAsync(item.Id)">
+                                        Edytuj
+                                    </button>
+                                    <button type="button"
+                                            class="admin-small-button"
+                                            @onclick="() => TogglePublishedAsync(item.Id)">
+                                        @(item.IsPublished ? "Ukryj" : "Opublikuj")
+                                    </button>
+                                    <button type="button"
+                                            class="admin-small-button"
+                                            @onclick="() => DeleteAsync(item.Id)">
+                                        Usuń
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private bool authorized;
+    private string message = "";
+
+    private List<SchoolClass> classes = new();
+    private List<Teacher> teachers = new();
+    private List<SchoolRoom> rooms = new();
+    private List<SchoolSubject> subjects = new();
+    private List<Substitution> substitutions = new();
+
+    private SubstitutionInput form = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        authorized =
+            await PermissionService.HasPermissionAsync(EnumPermissions.ManageSubstitutions)
+            || await PermissionService.HasPermissionAsync(EnumPermissions.Master);
+
+        if (authorized)
+        {
+            await LoadListsAsync();
+            await LoadSubstitutionsAsync();
+        }
+    }
+
+    private async Task LoadListsAsync()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+
+        classes = await db.SchoolClasses
+            .Where(x => x.IsActive)
+            .OrderBy(x => x.Name)
+            .ToListAsync();
+
+        teachers = await db.Teachers
+            .Where(x => x.IsActive)
+            .OrderBy(x => x.LastName)
+            .ThenBy(x => x.FirstName)
+            .ToListAsync();
+
+        rooms = await db.SchoolRooms
+            .Where(x => x.IsActive)
+            .OrderBy(x => x.Name)
+            .ToListAsync();
+
+        subjects = await db.SchoolSubjects
+            .Where(x => x.IsActive)
+            .OrderBy(x => x.Name)
+            .ToListAsync();
+    }
+
+    private async Task LoadSubstitutionsAsync()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+
+        substitutions = await db.Substitutions
+            .Include(x => x.SchoolClass)
+            .Include(x => x.SubstituteTeacher)
+            .OrderByDescending(x => x.Date)
+            .ThenBy(x => x.LessonNumber)
+            .ToListAsync();
+    }
+
+    private async Task SaveAsync()
+    {
+        if (!authorized)
+            return;
+
+        if (form.SchoolClassId <= 0)
+        {
+            message = "Wybierz klasę.";
+            return;
+        }
+
+        if (form.LessonNumber is < 1 or > 20)
+        {
+            message = "Numer lekcji musi mieścić się w zakresie 1–20.";
+            return;
+        }
+
+        await using var db = await DbFactory.CreateDbContextAsync();
+
+        Substitution entity;
+
+        if (form.Id == 0)
+        {
+            entity = new Substitution();
+            db.Substitutions.Add(entity);
+        }
+        else
+        {
+            entity = await db.Substitutions
+                .FirstOrDefaultAsync(x => x.Id == form.Id)
+                ?? throw new InvalidOperationException("Nie znaleziono zastępstwa.");
+        }
+
+        entity.Date = form.Date.Date;
+        entity.LessonNumber = form.LessonNumber;
+        entity.SchoolClassId = form.SchoolClassId;
+        entity.AbsentTeacherId = form.AbsentTeacherId;
+        entity.SubstituteTeacherId = form.SubstituteTeacherId;
+        entity.OriginalSubjectId = form.OriginalSubjectId;
+        entity.SubstituteSubjectId = form.SubstituteSubjectId;
+        entity.OriginalRoomId = form.OriginalRoomId;
+        entity.SubstituteRoomId = form.SubstituteRoomId;
+        entity.Notes = string.IsNullOrWhiteSpace(form.Notes)
+            ? null
+            : form.Notes.Trim();
+        entity.IsPublished = form.IsPublished;
+
+        await db.SaveChangesAsync();
+
+        message = form.Id == 0
+            ? "Dodano zastępstwo."
+            : "Zapisano zmiany.";
+
+        ResetForm();
+        await LoadSubstitutionsAsync();
+    }
+
+    private async Task EditAsync(int id)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+
+        var item = await db.Substitutions
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (item is null)
+        {
+            message = "Nie znaleziono zastępstwa.";
+            return;
+        }
+
+        form = new SubstitutionInput
+        {
+            Id = item.Id,
+            Date = item.Date,
+            LessonNumber = item.LessonNumber,
+            SchoolClassId = item.SchoolClassId,
+            AbsentTeacherId = item.AbsentTeacherId,
+            SubstituteTeacherId = item.SubstituteTeacherId,
+            OriginalSubjectId = item.OriginalSubjectId,
+            SubstituteSubjectId = item.SubstituteSubjectId,
+            OriginalRoomId = item.OriginalRoomId,
+            SubstituteRoomId = item.SubstituteRoomId,
+            Notes = item.Notes,
+            IsPublished = item.IsPublished
+        };
+
+        message = "Edytujesz wybrane zastępstwo.";
+    }
+
+    private async Task TogglePublishedAsync(int id)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+
+        var item = await db.Substitutions
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (item is null)
+            return;
+
+        item.IsPublished = !item.IsPublished;
+        await db.SaveChangesAsync();
+
+        message = item.IsPublished
+            ? "Zastępstwo zostało opublikowane."
+            : "Zastępstwo zostało ukryte.";
+
+        await LoadSubstitutionsAsync();
+    }
+
+    private async Task DeleteAsync(int id)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+
+        var item = await db.Substitutions
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (item is null)
+            return;
+
+        db.Substitutions.Remove(item);
+        await db.SaveChangesAsync();
+
+        message = "Usunięto zastępstwo.";
+        await LoadSubstitutionsAsync();
+
+        if (form.Id == id)
+            ResetForm();
+    }
+
+    private void ResetForm()
+    {
+        form = new SubstitutionInput();
+    }
+
+    private sealed class SubstitutionInput
+    {
+        public int Id { get; set; }
+        public DateTime Date { get; set; } = DateTime.Today;
+        public int LessonNumber { get; set; } = 1;
+        public int SchoolClassId { get; set; }
+        public int? AbsentTeacherId { get; set; }
+        public int? SubstituteTeacherId { get; set; }
+        public int? OriginalSubjectId { get; set; }
+        public int? SubstituteSubjectId { get; set; }
+        public int? OriginalRoomId { get; set; }
+        public int? SubstituteRoomId { get; set; }
+        public string? Notes { get; set; }
+        public bool IsPublished { get; set; } = true;
+    }
+}

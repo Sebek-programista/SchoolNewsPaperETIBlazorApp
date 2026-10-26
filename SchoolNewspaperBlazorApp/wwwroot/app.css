@@ -2202,3 +2202,2987 @@ textarea.form-control {
     from { opacity: 0; transform: translateY(.5rem); }
     to { opacity: 1; transform: none; }
 }
+
+/* =========================================================
+   SCHOOL NEWSPAPER — PREMIUM DESIGN SYSTEM
+   File: wwwroot/app.css
+   ========================================================= */
+
+/* ---------- 1. DESIGN TOKENS ---------- */
+
+:root {
+    color-scheme: light;
+    --bg: #f4f7fc;
+    --surface: #ffffff;
+    --surface-soft: #f7f9fd;
+    --surface-hover: #edf3ff;
+    --text: #17233c;
+    --text-secondary: #64728b;
+    --text-muted: #8995aa;
+    --primary: #315efb;
+    --primary-dark: #2449d8;
+    --primary-soft: #eaf0ff;
+    --accent: #16b8a6;
+    --success: #12805c;
+    --success-soft: #e4f8ef;
+    --warning: #b76e08;
+    --warning-soft: #fff4d9;
+    --danger: #d9435f;
+    --danger-soft: #fff0f2;
+    --border: #e5eaf3;
+    --border-strong: #d7dfed;
+    --shadow-sm: 0 2px 8px rgba(24, 39, 75, 0.04);
+    --shadow-md: 0 10px 30px rgba(24, 39, 75, 0.07);
+    --shadow-lg: 0 22px 60px rgba(24, 39, 75, 0.12);
+    --radius-sm: 10px;
+    --radius-md: 16px;
+    --radius-lg: 22px;
+    --radius-xl: 28px;
+    --transition: 180ms ease;
+    --content-width: 1440px;
+}
+
+/* ---------- 2. GLOBAL RESET ---------- */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
+    scroll-behavior: smooth;
+    scroll-padding-top: 100px;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: radial-gradient( circle at 8% 0%, rgba(49, 94, 251, 0.055), transparent 28rem ), var(--bg);
+    color: var(--text);
+    font-family: Inter, "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+    button:disabled {
+        cursor: not-allowed;
+        opacity: 0.55;
+    }
+
+a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color var(--transition);
+}
+
+    a:hover {
+        color: var(--primary-dark);
+    }
+
+img {
+    max-width: 100%;
+}
+
+::selection {
+    background: rgba(49, 94, 251, 0.18);
+    color: var(--text);
+}
+
+:focus-visible {
+    outline: 3px solid rgba(49, 94, 251, 0.45);
+    outline-offset: 3px;
+}
+
+/* ---------- 3. MAIN APPLICATION LAYOUT ---------- */
+
+.site-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.site-main {
+    flex: 1;
+    width: 100%;
+    max-width: var(--content-width);
+    margin-inline: auto;
+    padding: 36px clamp(16px, 3vw, 42px) 64px;
+}
+
+/* ---------- 4. HEADER ---------- */
+
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.9);
+    border-bottom: 1px solid rgba(229, 234, 243, 0.9);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+    width: 100%;
+    max-width: 1520px;
+    min-height: 82px;
+    margin-inline: auto;
+    padding: 12px clamp(16px, 3vw, 42px);
+}
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    color: var(--text);
+    font-size: 19px;
+    font-weight: 850;
+    letter-spacing: -0.7px;
+}
+
+    .brand:hover {
+        color: var(--primary);
+    }
+
+    .brand img,
+    .brand__logo {
+        width: 44px;
+        height: 44px;
+        object-fit: contain;
+        border-radius: 14px;
+    }
+
+.main-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.main-nav__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 9px 14px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: background var(--transition), color var(--transition), border-color var(--transition), transform var(--transition);
+}
+
+    .main-nav__link:hover {
+        background: var(--surface-hover);
+        color: var(--primary);
+    }
+
+    .main-nav__link.active,
+    .main-nav__link[aria-current="page"] {
+        background: var(--primary-soft);
+        color: var(--primary);
+        border-color: rgba(49, 94, 251, 0.08);
+    }
+
+.nav-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.site-header__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.header-user {
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.header-login,
+.admin-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 750;
+    transition: all var(--transition);
+}
+
+    .header-login:hover {
+        border-color: var(--primary);
+        background: var(--primary-soft);
+        color: var(--primary);
+    }
+
+.admin-link {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 5px 14px rgba(49, 94, 251, 0.2);
+}
+
+    .admin-link:hover {
+        transform: translateY(-1px);
+        background: var(--primary-dark);
+        color: white;
+        box-shadow: 0 8px 20px rgba(49, 94, 251, 0.25);
+    }
+
+/* ---------- 5. BUTTONS ---------- */
+
+button,
+.btn,
+.admin-action {
+    transition: background var(--transition), color var(--transition), border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+
+    .btn,
+    .admin-action,
+    button[type="submit"] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 42px;
+        padding: 10px 17px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--surface);
+        color: var(--text);
+        font-size: 13px;
+        font-weight: 750;
+        text-align: center;
+    }
+
+        .btn:hover,
+        .admin-action:hover {
+            transform: translateY(-1px);
+            border-color: var(--border-strong);
+            box-shadow: var(--shadow-sm);
+        }
+
+    .btn-primary,
+    .admin-action--primary,
+    button[type="submit"] {
+        border-color: var(--primary);
+        background: var(--primary);
+        color: #fff;
+        box-shadow: 0 5px 14px rgba(49, 94, 251, 0.15);
+    }
+
+        .btn-primary:hover,
+        .admin-action--primary:hover,
+        button[type="submit"]:hover {
+            border-color: var(--primary-dark);
+            background: var(--primary-dark);
+            color: #fff;
+        }
+
+.btn-danger,
+.admin-action--danger {
+    border-color: #ffd6de;
+    background: var(--danger-soft);
+    color: var(--danger);
+}
+
+    .btn-danger:hover,
+    .admin-action--danger:hover {
+        border-color: var(--danger);
+        background: var(--danger);
+        color: white;
+    }
+
+.btn-success {
+    border-color: #c4efdd;
+    background: var(--success-soft);
+    color: var(--success);
+}
+
+    .btn-success:hover {
+        border-color: var(--success);
+        background: var(--success);
+        color: white;
+    }
+
+/* ---------- 6. ADMIN PANEL ---------- */
+
+.admin-page {
+    width: 100%;
+    max-width: 1240px;
+    margin-inline: auto;
+    animation: page-enter 350ms ease both;
+}
+
+.admin-header {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 30px;
+    padding: clamp(24px, 4vw, 38px);
+    overflow: hidden;
+    border: 1px solid rgba(49, 94, 251, 0.1);
+    border-radius: var(--radius-xl);
+    background: radial-gradient( circle at 95% 5%, rgba(255, 255, 255, 0.22), transparent 17rem ), linear-gradient(120deg, #17294e 0%, #2447a7 58%, #315efb 100%);
+    color: white;
+    box-shadow: 0 18px 40px rgba(35, 65, 150, 0.18);
+}
+
+    .admin-header h1,
+    .admin-header h2 {
+        margin: 0 0 8px;
+        color: white;
+        font-size: clamp(25px, 3vw, 36px);
+        font-weight: 850;
+        letter-spacing: -1.1px;
+        line-height: 1.2;
+    }
+
+    .admin-header p {
+        max-width: 680px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 14px;
+    }
+
+    .admin-header .admin-action {
+        border-color: rgba(255, 255, 255, 0.28);
+        background: rgba(255, 255, 255, 0.12);
+        color: white;
+    }
+
+        .admin-header .admin-action:hover {
+            background: rgba(255, 255, 255, 0.22);
+        }
+
+.admin-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.admin-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 30px 0 16px;
+}
+
+    .admin-section-heading h2,
+    .admin-section-heading h3 {
+        margin: 0;
+        color: var(--text);
+        font-size: 20px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+.admin-section {
+    margin-bottom: 26px;
+}
+
+.admin-content-panel,
+.admin-form-wrapper,
+.article-panel {
+    min-width: 0;
+    padding: clamp(20px, 3vw, 30px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+}
+
+    .admin-content-panel h2,
+    .admin-content-panel h3,
+    .admin-form-wrapper h2,
+    .admin-form-wrapper h3,
+    .article-panel h2 {
+        margin-top: 0;
+        color: var(--text);
+        font-weight: 800;
+        letter-spacing: -0.4px;
+    }
+
+.admin-back-row {
+    margin-bottom: 18px;
+}
+
+.admin-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 180px;
+    padding: 28px;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--surface-soft);
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+/* ---------- 7. FORMS ---------- */
+
+form {
+    min-width: 0;
+}
+
+.form-group,
+.form-field,
+.mb-3 {
+    margin-bottom: 18px;
+}
+
+label,
+.form-label {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 750;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]),
+select,
+textarea {
+    width: 100%;
+    min-height: 45px;
+    padding: 11px 13px;
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+}
+
+textarea {
+    min-height: 115px;
+    resize: vertical;
+}
+
+    input::placeholder,
+    textarea::placeholder {
+        color: #a0aabe;
+    }
+
+    input:not([type="checkbox"]):not([type="radio"]):focus,
+    select:focus,
+    textarea:focus {
+        border-color: var(--primary);
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(49, 94, 251, 0.1);
+    }
+
+input[type="checkbox"],
+input[type="radio"] {
+    accent-color: var(--primary);
+}
+
+.form-text,
+.help-text,
+small {
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+.validation-message,
+.field-validation-error {
+    display: block;
+    margin-top: 5px;
+    color: var(--danger);
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.validation-summary-errors {
+    margin: 16px 0;
+    padding: 14px 16px;
+    border: 1px solid #ffd6de;
+    border-radius: 12px;
+    background: var(--danger-soft);
+    color: var(--danger);
+}
+
+/* ---------- 8. TABLES AND LISTS ---------- */
+
+.table-responsive,
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+}
+
+thead th {
+    padding: 15px 17px;
+    border-bottom: 1px solid var(--border);
+    background: #f7f9fd;
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: 0.7px;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+tbody td {
+    padding: 15px 17px;
+    border-bottom: 1px solid #edf0f6;
+    color: var(--text);
+    vertical-align: middle;
+}
+
+tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+tbody tr {
+    transition: background var(--transition);
+}
+
+    tbody tr:hover {
+        background: #f8faff;
+    }
+
+/* ---------- 9. BADGES AND STATUS LABELS ---------- */
+
+.badge,
+.status-badge,
+.badge-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-height: 25px;
+    padding: 4px 10px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.3;
+    white-space: nowrap;
+}
+
+.badge-success,
+.status-published,
+.status-active {
+    border-color: #c9f0df;
+    background: var(--success-soft);
+    color: var(--success);
+}
+
+.badge-warning,
+.status-draft,
+.status-pending {
+    border-color: #ffe6a7;
+    background: var(--warning-soft);
+    color: var(--warning);
+}
+
+.badge-danger,
+.status-inactive {
+    border-color: #ffd6de;
+    background: var(--danger-soft);
+    color: var(--danger);
+}
+
+/* ---------- 10. SUBSTITUTIONS PAGE ---------- */
+
+.substitutions-page,
+.zastepstwa-page {
+    width: 100%;
+    max-width: 1180px;
+    margin-inline: auto;
+    animation: page-enter 350ms ease both;
+}
+
+.substitutions-header,
+.zastepstwa-header {
+    position: relative;
+    margin-bottom: 28px;
+    padding: clamp(26px, 5vw, 48px);
+    overflow: hidden;
+    border: 1px solid rgba(49, 94, 251, 0.1);
+    border-radius: var(--radius-xl);
+    background: radial-gradient( circle at 90% 10%, rgba(22, 184, 166, 0.2), transparent 16rem ), linear-gradient(125deg, #17294e, #2447a7 65%, #315efb);
+    color: white;
+    box-shadow: 0 18px 42px rgba(35, 65, 150, 0.16);
+}
+
+    .substitutions-header h1,
+    .zastepstwa-header h1 {
+        margin: 0 0 12px;
+        color: white;
+        font-size: clamp(28px, 4vw, 42px);
+        font-weight: 900;
+        letter-spacing: -1.5px;
+        line-height: 1.15;
+    }
+
+    .substitutions-header p,
+    .zastepstwa-header p {
+        max-width: 680px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 15px;
+    }
+
+.substitutions-grid,
+.zastepstwa-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.substitution-card,
+.zastepstwa-card {
+    position: relative;
+    min-width: 0;
+    padding: 23px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+}
+
+    .substitution-card::before,
+    .zastepstwa-card::before {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, var(--primary), var(--accent));
+        content: "";
+    }
+
+    .substitution-card:hover,
+    .zastepstwa-card:hover {
+        transform: translateY(-4px);
+        border-color: #d5dfff;
+        box-shadow: var(--shadow-md);
+    }
+
+    .substitution-card h2,
+    .substitution-card h3,
+    .zastepstwa-card h2,
+    .zastepstwa-card h3 {
+        margin: 0;
+        color: var(--text);
+        font-size: 19px;
+        font-weight: 850;
+        letter-spacing: -0.45px;
+    }
+
+    .substitution-card p,
+    .zastepstwa-card p {
+        margin: 6px 0;
+        color: var(--text-secondary);
+        font-size: 13px;
+    }
+
+.substitution-card__header,
+.substitution-header,
+.zastepstwa-card__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.substitution-card__date,
+.substitution-date,
+.zastepstwa-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 11px;
+    border: 1px solid #dce5ff;
+    border-radius: 10px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.substitution-card__class,
+.substitution-class,
+.zastepstwa-class {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    min-height: 36px;
+    padding: 7px 12px;
+    border-radius: 11px;
+    background: #e8faf6;
+    color: #087f72;
+    font-size: 15px;
+    font-weight: 900;
+}
+
+.substitution-details,
+.substitution-card__details,
+.zastepstwa-details {
+    display: grid;
+    gap: 11px;
+    margin-top: 17px;
+}
+
+.substitution-row,
+.substitution-detail,
+.zastepstwa-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding-top: 11px;
+    border-top: 1px solid #edf0f6;
+}
+
+    .substitution-row span:first-child,
+    .substitution-detail__label,
+    .zastepstwa-row span:first-child {
+        flex-shrink: 0;
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .substitution-row span:last-child,
+    .substitution-detail__value,
+    .zastepstwa-row span:last-child {
+        color: var(--text);
+        font-size: 13px;
+        font-weight: 750;
+        text-align: right;
+        overflow-wrap: anywhere;
+    }
+
+.substitution-notes,
+.zastepstwa-notes {
+    margin-top: 17px;
+    padding: 13px 15px;
+    border: 1px solid #e7edff;
+    border-radius: 12px;
+    background: #f6f8ff;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.substitutions-empty,
+.zastepstwa-empty {
+    grid-column: 1 / -1;
+    padding: 46px 24px;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+    .substitutions-empty h2,
+    .zastepstwa-empty h2 {
+        margin: 0 0 8px;
+        color: var(--text);
+        font-size: 21px;
+        font-weight: 850;
+    }
+
+    .substitutions-empty p,
+    .zastepstwa-empty p {
+        margin: 0;
+    }
+
+/* ---------- 11. SCHOOL DATA MANAGEMENT ---------- */
+
+.school-data-grid,
+.school-data-sections {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+}
+
+.school-data-card,
+.school-data-section {
+    min-width: 0;
+    padding: 23px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+}
+
+    .school-data-card h2,
+    .school-data-card h3,
+    .school-data-section h2,
+    .school-data-section h3 {
+        margin: 0 0 17px;
+        color: var(--text);
+        font-size: 18px;
+        font-weight: 850;
+        letter-spacing: -0.4px;
+    }
+
+.school-data-list {
+    display: grid;
+    gap: 8px;
+}
+
+.school-data-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid #edf0f6;
+    border-radius: 12px;
+    background: var(--surface-soft);
+    transition: border-color var(--transition), background var(--transition);
+}
+
+    .school-data-item:hover {
+        border-color: #d8e2ff;
+        background: #f2f6ff;
+    }
+
+    .school-data-item strong {
+        color: var(--text);
+        font-size: 13px;
+        font-weight: 750;
+    }
+
+/* ---------- 12. ARTICLE CARDS ---------- */
+
+.article-card,
+.news-card {
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+
+    .article-card:hover,
+    .news-card:hover {
+        transform: translateY(-4px);
+        border-color: #d9e2ff;
+        box-shadow: var(--shadow-md);
+    }
+
+    .article-card h2,
+    .article-card h3,
+    .news-card h2,
+    .news-card h3 {
+        color: var(--text);
+        font-weight: 850;
+        letter-spacing: -0.5px;
+    }
+
+    .article-card p,
+    .news-card p {
+        color: var(--text-secondary);
+        font-size: 14px;
+        line-height: 1.75;
+    }
+
+/* ---------- 13. FOOTER ---------- */
+
+.site-footer {
+    margin-top: auto;
+    border-top: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.85);
+}
+
+.site-footer__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 24px;
+    width: 100%;
+    max-width: 1520px;
+    margin-inline: auto;
+    padding: 28px clamp(16px, 3vw, 42px);
+}
+
+.site-footer__brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 850;
+}
+
+.site-footer__logo {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    border-radius: 10px;
+}
+
+.site-footer__links {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 18px;
+}
+
+    .site-footer__links a {
+        color: var(--text-secondary);
+        font-size: 12px;
+        font-weight: 650;
+    }
+
+        .site-footer__links a:hover {
+            color: var(--primary);
+        }
+
+.site-footer__copyright {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* ---------- 14. NOTIFICATIONS AND ALERTS ---------- */
+
+.alert,
+.alert-success,
+.alert-danger,
+.alert-warning,
+.alert-info {
+    margin: 16px 0;
+    padding: 14px 17px;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.alert-success {
+    border-color: #c4efdd;
+    background: var(--success-soft);
+    color: var(--success);
+}
+
+.alert-danger {
+    border-color: #ffd6de;
+    background: var(--danger-soft);
+    color: var(--danger);
+}
+
+.alert-warning {
+    border-color: #ffe6a7;
+    background: var(--warning-soft);
+    color: var(--warning);
+}
+
+.alert-info {
+    border-color: #d7e4ff;
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+}
+
+/* ---------- 15. ANIMATIONS ---------- */
+
+@keyframes page-enter {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ---------- 16. RESPONSIVE: TABLETS ---------- */
+
+@media (max-width: 1050px) {
+    .site-header__inner {
+        flex-wrap: wrap;
+        gap: 12px 20px;
+        padding-block: 14px;
+    }
+
+    .main-nav {
+        order: 3;
+        width: 100%;
+        justify-content: flex-start;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 2px;
+    }
+
+    .main-nav__link {
+        flex-shrink: 0;
+    }
+
+    .site-header__actions {
+        margin-left: auto;
+    }
+
+    .site-main {
+        padding-top: 26px;
+    }
+}
+
+/* ---------- 17. RESPONSIVE: MOBILE ---------- */
+
+@media (max-width: 700px) {
+    body {
+        font-size: 14px;
+    }
+
+    .site-header {
+        position: relative;
+    }
+
+    .site-header__inner {
+        padding: 13px 16px;
+    }
+
+    .brand {
+        font-size: 16px;
+    }
+
+        .brand img,
+        .brand__logo {
+            width: 38px;
+            height: 38px;
+        }
+
+    .main-nav {
+        gap: 4px;
+    }
+
+    .main-nav__link {
+        min-height: 38px;
+        padding: 8px 11px;
+        font-size: 12px;
+    }
+
+    .site-header__actions {
+        gap: 6px;
+    }
+
+    .header-login,
+    .admin-link {
+        min-height: 38px;
+        padding: 8px 11px;
+        font-size: 12px;
+    }
+
+    .header-user {
+        display: none;
+    }
+
+    .site-main {
+        padding: 22px 15px 40px;
+    }
+
+    .admin-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 18px;
+        padding: 25px 21px;
+        border-radius: 20px;
+    }
+
+        .admin-header h1,
+        .admin-header h2 {
+            font-size: 27px;
+        }
+
+    .admin-actions {
+        gap: 8px;
+    }
+
+        .admin-actions > * {
+            max-width: 100%;
+        }
+
+    .admin-content-panel,
+    .admin-form-wrapper,
+    .article-panel {
+        padding: 18px;
+        border-radius: 16px;
+    }
+
+    .substitutions-header,
+    .zastepstwa-header {
+        padding: 27px 22px;
+        border-radius: 20px;
+    }
+
+        .substitutions-header h1,
+        .zastepstwa-header h1 {
+            font-size: 30px;
+        }
+
+    .substitutions-grid,
+    .zastepstwa-grid,
+    .school-data-grid,
+    .school-data-sections {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+    }
+
+    .substitution-card,
+    .zastepstwa-card,
+    .school-data-card,
+    .school-data-section {
+        padding: 19px;
+        border-radius: 16px;
+    }
+
+    .site-footer__inner {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 16px;
+        padding: 24px 18px;
+    }
+
+    .site-footer__links {
+        gap: 12px 16px;
+    }
+
+    table {
+        min-width: 600px;
+    }
+}
+
+/* ---------- 18. RESPONSIVE: SMALL PHONES ---------- */
+
+@media (max-width: 400px) {
+    .site-header__inner {
+        gap: 10px;
+    }
+
+    .brand {
+        font-size: 14px;
+    }
+
+    .admin-link,
+    .header-login {
+        padding-inline: 9px;
+        font-size: 11px;
+    }
+
+    .substitution-card__header,
+    .substitution-header,
+    .zastepstwa-card__header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .substitution-row,
+    .zastepstwa-row {
+        gap: 10px;
+    }
+}
+
+/* =====================================================
+   FORMULARZE DANYCH SZKOLNYCH I ZASTĘPSTW
+   Styl ograniczony do tych sekcji — bez zmiany kafelków
+   panelu administratora i wyglądu nawigacji.
+   ===================================================== */
+
+/* Karty z danymi szkolnymi */
+
+.admin-page .school-data-grid,
+.admin-page .school-data-sections {
+    align-items: start;
+    gap: 24px;
+}
+
+.admin-page .school-data-card,
+.admin-page .school-data-section {
+    min-width: 0;
+    padding: 26px;
+    border: 1px solid var(--eti-border);
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 5px 0 var(--eti-tint-strong), var(--eti-shadow);
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+    .admin-page .school-data-card:hover,
+    .admin-page .school-data-section:hover {
+        border-color: var(--eti-border-strong);
+        box-shadow: 0 6px 0 var(--eti-tint-strong), var(--eti-shadow-hover);
+    }
+
+    .admin-page .school-data-card h2,
+    .admin-page .school-data-card h3,
+    .admin-page .school-data-section h2,
+    .admin-page .school-data-section h3 {
+        margin: 0 0 20px;
+        color: var(--eti-blue);
+        font-size: 19px;
+        font-weight: 850;
+        line-height: 1.35;
+    }
+
+    /* Pola formularzy — tylko w kartach danych szkolnych */
+
+    .admin-page .school-data-card label,
+    .admin-page .school-data-section label {
+        display: block;
+        margin-bottom: 7px;
+        color: #35445b;
+        font-size: 13px;
+        font-weight: 750;
+    }
+
+    .admin-page .school-data-card input:not([type="checkbox"]):not([type="radio"]),
+    .admin-page .school-data-card select,
+    .admin-page .school-data-card textarea,
+    .admin-page .school-data-section input:not([type="checkbox"]):not([type="radio"]),
+    .admin-page .school-data-section select,
+    .admin-page .school-data-section textarea {
+        display: block;
+        width: 100%;
+        min-height: 46px;
+        padding: 11px 14px;
+        border: 1px solid var(--eti-border-strong);
+        border-radius: 11px;
+        background: #fff;
+        color: var(--eti-text);
+        font-size: 14px;
+        transition: border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .admin-page .school-data-card textarea,
+    .admin-page .school-data-section textarea {
+        min-height: 110px;
+        resize: vertical;
+    }
+
+        .admin-page .school-data-card input:focus,
+        .admin-page .school-data-card select:focus,
+        .admin-page .school-data-card textarea:focus,
+        .admin-page .school-data-section input:focus,
+        .admin-page .school-data-section select:focus,
+        .admin-page .school-data-section textarea:focus {
+            border-color: var(--eti-blue);
+            outline: none;
+            box-shadow: var(--eti-ring);
+        }
+
+        .admin-page .school-data-card input::placeholder,
+        .admin-page .school-data-section input::placeholder,
+        .admin-page .school-data-card textarea::placeholder,
+        .admin-page .school-data-section textarea::placeholder {
+            color: #98a3b3;
+        }
+
+    /* Odstępy między polami */
+
+    .admin-page .school-data-card .mb-3,
+    .admin-page .school-data-section .mb-3 {
+        margin-bottom: 19px !important;
+    }
+
+    .admin-page .school-data-card form,
+    .admin-page .school-data-section form {
+        display: flex;
+        flex-direction: column;
+        gap: 13px;
+    }
+
+    /* Przyciski w formularzach danych szkolnych */
+
+    .admin-page .school-data-card button,
+    .admin-page .school-data-section button {
+        min-height: 43px;
+        padding: 10px 17px;
+        border: 1px solid var(--eti-blue);
+        border-radius: 11px;
+        background: var(--eti-blue);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
+    }
+
+        .admin-page .school-data-card button:hover,
+        .admin-page .school-data-section button:hover {
+            transform: translateY(-1px);
+            background: var(--eti-blue-hover);
+            box-shadow: 0 5px 12px rgba(24, 58, 104, .15);
+        }
+
+        .admin-page .school-data-card button:active,
+        .admin-page .school-data-section button:active {
+            transform: translateY(0);
+        }
+
+/* Listy klas, nauczycieli, sal i przedmiotów */
+
+.admin-page .school-data-list {
+    display: grid;
+    gap: 9px;
+    margin-top: 20px;
+}
+
+.admin-page .school-data-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 13px 15px;
+    border: 1px solid var(--eti-border);
+    border-radius: 12px;
+    background: #f8f9fc;
+    transition: background .2s ease, border-color .2s ease;
+}
+
+    .admin-page .school-data-item:hover {
+        border-color: var(--eti-border-strong);
+        background: var(--eti-tint);
+    }
+
+    .admin-page .school-data-item strong {
+        color: var(--eti-blue);
+        font-size: 13px;
+        font-weight: 800;
+        overflow-wrap: anywhere;
+    }
+
+/* Formularz zastępstw — style ograniczone do obszaru zastępstw */
+
+.admin-page .substitution-form,
+.admin-page .substitutions-form,
+.admin-page .zastepstwa-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    width: 100%;
+    padding: 26px;
+    border: 1px solid var(--eti-border);
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 5px 0 var(--eti-tint-strong), var(--eti-shadow);
+}
+
+    .admin-page .substitution-form label,
+    .admin-page .substitutions-form label,
+    .admin-page .zastepstwa-form label {
+        display: block;
+        margin-bottom: 7px;
+        color: #35445b;
+        font-size: 13px;
+        font-weight: 750;
+    }
+
+    .admin-page .substitution-form input,
+    .admin-page .substitution-form select,
+    .admin-page .substitution-form textarea,
+    .admin-page .substitutions-form input,
+    .admin-page .substitutions-form select,
+    .admin-page .substitutions-form textarea,
+    .admin-page .zastepstwa-form input,
+    .admin-page .zastepstwa-form select,
+    .admin-page .zastepstwa-form textarea {
+        width: 100%;
+        min-height: 46px;
+        padding: 11px 14px;
+        border: 1px solid var(--eti-border-strong);
+        border-radius: 11px;
+        background: #fff;
+        color: var(--eti-text);
+        font-size: 14px;
+        transition: border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .admin-page .substitution-form textarea,
+    .admin-page .substitutions-form textarea,
+    .admin-page .zastepstwa-form textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+        .admin-page .substitution-form input:focus,
+        .admin-page .substitution-form select:focus,
+        .admin-page .substitution-form textarea:focus,
+        .admin-page .substitutions-form input:focus,
+        .admin-page .substitutions-form select:focus,
+        .admin-page .substitutions-form textarea:focus,
+        .admin-page .zastepstwa-form input:focus,
+        .admin-page .zastepstwa-form select:focus,
+        .admin-page .zastepstwa-form textarea:focus {
+            border-color: var(--eti-blue);
+            outline: none;
+            box-shadow: var(--eti-ring);
+        }
+
+    /* Przycisk zapisywania zastępstwa */
+
+    .admin-page .substitution-form button[type="submit"],
+    .admin-page .substitutions-form button[type="submit"],
+    .admin-page .zastepstwa-form button[type="submit"] {
+        min-height: 46px;
+        padding: 11px 20px;
+        border: 1px solid var(--eti-blue);
+        border-radius: 11px;
+        background: var(--eti-blue);
+        color: #fff;
+        font-weight: 800;
+        cursor: pointer;
+        transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
+    }
+
+        .admin-page .substitution-form button[type="submit"]:hover,
+        .admin-page .substitutions-form button[type="submit"]:hover,
+        .admin-page .zastepstwa-form button[type="submit"]:hover {
+            transform: translateY(-1px);
+            background: var(--eti-blue-hover);
+            box-shadow: 0 5px 12px rgba(24, 58, 104, .15);
+        }
+
+    /* Komunikaty i walidacja w nowych formularzach */
+
+    .admin-page .school-data-card .validation-message,
+    .admin-page .school-data-section .validation-message,
+    .admin-page .substitution-form .validation-message,
+    .admin-page .substitutions-form .validation-message,
+    .admin-page .zastepstwa-form .validation-message {
+        display: block;
+        margin-top: 5px;
+        color: var(--eti-danger);
+        font-size: 12px;
+        font-weight: 650;
+    }
+
+    .admin-page .school-data-card .alert,
+    .admin-page .school-data-section .alert,
+    .admin-page .substitution-form .alert,
+    .admin-page .substitutions-form .alert,
+    .admin-page .zastepstwa-form .alert {
+        grid-column: 1 / -1;
+        margin: 0;
+    }
+
+/* Responsywność nowych formularzy */
+
+@media (max-width: 700px) {
+    .admin-page .school-data-card,
+    .admin-page .school-data-section {
+        padding: 19px;
+    }
+
+    .admin-page .substitution-form,
+    .admin-page .substitutions-form,
+    .admin-page .zastepstwa-form {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 16px;
+        padding: 19px;
+    }
+
+    .admin-page .school-data-item {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+/* Równe kafelki panelu administratora */
+.admin-page .admin-actions {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    align-items: stretch;
+}
+
+.admin-page .admin-action {
+    width: 100%;
+    min-width: 0;
+    height: 296px;
+    min-height: 296px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+    .admin-page .admin-action > * {
+        max-width: 100%;
+    }
+
+@media (max-width: 1100px) {
+    .admin-page .admin-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .admin-page .admin-actions {
+        grid-template-columns: 1fr;
+    }
+}
+.admin-content-panel .admin-delete-button {
+    background: #fff0f1;
+    color: #bd2638;
+    border: 1px solid #ffd1d7;
+}
+
+    .admin-content-panel .admin-delete-button:hover {
+        background: #ffe0e4;
+        border-color: #f5aab4;
+    }
+
+/* ==========================================
+   DANE SZKOŁY — NOWOCZESNY WYGLĄD
+   ========================================== */
+
+.admin-content-panel {
+    width: 100%;
+    padding: 28px;
+    border: 1px solid var(--eti-border);
+    border-radius: 22px;
+    background: #fff;
+    box-shadow: var(--eti-shadow);
+    color: var(--eti-text);
+}
+
+    .admin-content-panel .admin-content-panel__header {
+        margin-bottom: 26px;
+        padding-bottom: 22px;
+        border-bottom: 1px solid #e8edf5;
+    }
+
+        .admin-content-panel .admin-content-panel__header h2 {
+            margin: 7px 0 0;
+            color: var(--eti-blue);
+            font-size: clamp(23px, 3vw, 30px);
+            font-weight: 850;
+            letter-spacing: -0.7px;
+        }
+
+        .admin-content-panel .admin-content-panel__header p {
+            max-width: 680px;
+            margin: 9px 0 0;
+            color: var(--eti-muted);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+    /* Zakładki kategorii */
+
+    .admin-content-panel > div:nth-child(2) {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 25px !important;
+        padding: 7px;
+        border: 1px solid #e8edf5;
+        border-radius: 15px;
+        background: #f6f8fc;
+    }
+
+        .admin-content-panel > div:nth-child(2) .admin-small-button {
+            min-height: 42px;
+            padding: 0 20px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            background: transparent;
+            box-shadow: none;
+            color: var(--eti-muted);
+            font-size: 12px;
+            font-weight: 800;
+            transition: background .2s ease, color .2s ease, border-color .2s ease, transform .2s ease;
+        }
+
+            .admin-content-panel > div:nth-child(2) .admin-small-button:hover {
+                transform: translateY(-1px);
+                border-color: var(--eti-border);
+                background: #fff;
+                color: var(--eti-blue);
+            }
+
+    /* Nagłówki sekcji */
+
+    .admin-content-panel h3 {
+        margin: 25px 0 17px;
+        color: var(--eti-blue);
+        font-size: 21px;
+        font-weight: 850;
+        letter-spacing: -.45px;
+    }
+
+    /* Formularze dodawania */
+
+    .admin-content-panel form {
+        margin: 0 0 25px;
+        padding: 21px;
+        border: 1px solid #e5eaf2;
+        border-radius: 17px;
+        background: linear-gradient(135deg, #f9fbff, #f3f6fb);
+    }
+
+        .admin-content-panel form > div {
+            align-items: center;
+        }
+
+    .admin-content-panel .form-control {
+        width: 100%;
+        min-width: 0;
+        min-height: 46px;
+        padding: 11px 14px;
+        border: 1px solid #dbe3ef;
+        border-radius: 11px;
+        outline: none;
+        background: #fff;
+        color: var(--eti-text);
+        font-size: 13px;
+        transition: border-color .2s ease, box-shadow .2s ease;
+    }
+
+        .admin-content-panel .form-control::placeholder {
+            color: #98a4b6;
+        }
+
+        .admin-content-panel .form-control:focus {
+            border-color: var(--eti-blue);
+            box-shadow: var(--eti-ring);
+        }
+
+    .admin-content-panel form .admin-small-button {
+        min-height: 44px;
+        padding: 0 19px;
+        border-radius: 11px;
+        white-space: nowrap;
+    }
+
+    .admin-content-panel form button[type="submit"]:hover {
+        filter: brightness(1.08);
+    }
+
+    .admin-content-panel .validation-message {
+        display: block;
+        margin-top: 6px;
+        color: #bd2638;
+        font-size: 12px;
+        font-weight: 650;
+    }
+
+    /* Listy danych */
+
+    .admin-content-panel ul {
+        display: grid;
+        gap: 10px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+        .admin-content-panel ul li {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 9px;
+            min-width: 0;
+            margin: 0 !important;
+            padding: 15px 17px;
+            border: 1px solid #e7ecf4;
+            border-radius: 14px;
+            background: #fff;
+            color: var(--eti-muted);
+            font-size: 13px;
+            transition: border-color .2s ease, background .2s ease, box-shadow .2s ease, transform .2s ease;
+        }
+
+            .admin-content-panel ul li:hover {
+                transform: translateY(-1px);
+                border-color: #d2dff1;
+                background: #fbfcff;
+                box-shadow: 0 5px 16px rgba(24, 58, 104, .055);
+            }
+
+            .admin-content-panel ul li strong {
+                color: var(--eti-blue);
+                font-size: 14px;
+                font-weight: 800;
+            }
+
+            /* Przyciski akcji na liście */
+
+            .admin-content-panel ul li .admin-small-button {
+                min-height: 35px;
+                padding: 0 12px;
+                border-radius: 9px;
+                font-size: 11px;
+                box-shadow: none;
+            }
+
+                .admin-content-panel ul li .admin-small-button:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 3px 9px rgba(24, 58, 104, .12);
+                }
+
+            .admin-content-panel ul li .admin-delete-button {
+                border: 1px solid #f4cdd2;
+                background: #fff1f2;
+                color: #b42335;
+                box-shadow: none;
+            }
+
+                .admin-content-panel ul li .admin-delete-button:hover {
+                    border-color: #e8a5ae;
+                    background: #ffe3e6;
+                    color: #941b2b;
+                }
+
+    .admin-content-panel button:disabled {
+        opacity: .55;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Komunikaty */
+
+    .admin-content-panel p[role="status"] {
+        margin: 0 0 20px;
+        padding: 13px 16px;
+        border: 1px solid #cfe7db;
+        border-radius: 12px;
+        background: #f0faf5;
+        color: #176847;
+        font-size: 13px;
+        font-weight: 650;
+        overflow-wrap: anywhere;
+    }
+
+/* Ekrany mobilne */
+
+@media (max-width: 650px) {
+    .admin-content-panel {
+        padding: 17px;
+        border-radius: 16px;
+    }
+
+        .admin-content-panel form {
+            padding: 15px;
+        }
+
+        .admin-content-panel > div:nth-child(2) {
+            gap: 6px;
+        }
+
+            .admin-content-panel > div:nth-child(2) .admin-small-button {
+                flex: 1 1 calc(50% - 6px);
+                padding: 0 10px;
+            }
+
+        .admin-content-panel ul li {
+            padding: 13px;
+            gap: 8px;
+        }
+
+            .admin-content-panel ul li strong {
+                width: 100%;
+            }
+
+            .admin-content-panel ul li .admin-small-button {
+                flex: 1 1 auto;
+            }
+}
+
+/* =========================================
+   SCHOOL DATA — PREMIUM UI UPGRADE
+   ========================================= */
+
+.admin-content-panel {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(22px, 3vw, 36px);
+    border: 1px solid #e4eaf4;
+    border-radius: 24px;
+    background: radial-gradient(ellipse at 100% 0%, rgba(76, 132, 232, .075), transparent 34%), linear-gradient(145deg, #ffffff 0%, #fbfcff 100%);
+    box-shadow: 0 18px 50px rgba(31, 55, 92, .075), 0 2px 8px rgba(31, 55, 92, .035);
+}
+
+    /* Nagłówek */
+
+    .admin-content-panel .admin-content-panel__header {
+        position: relative;
+        margin-bottom: 28px;
+        padding: 4px 0 24px;
+        border-bottom: 1px solid #e8edf5;
+    }
+
+    .admin-content-panel .admin-section-heading__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 11px;
+        border: 1px solid #dce8fb;
+        border-radius: 8px;
+        background: #f0f5ff;
+        color: #315da8;
+        font-size: 10px;
+        font-weight: 850;
+        letter-spacing: 1.15px;
+    }
+
+    .admin-content-panel .admin-content-panel__header h2 {
+        margin: 13px 0 0;
+        color: #172b4d;
+        font-size: clamp(26px, 3vw, 34px);
+        font-weight: 850;
+        line-height: 1.2;
+        letter-spacing: -1px;
+    }
+
+    .admin-content-panel .admin-content-panel__header p {
+        max-width: 620px;
+        margin-top: 10px;
+        color: #748198;
+        font-size: 14px;
+        line-height: 1.8;
+    }
+
+    /* Zakładki — bardziej eleganckie */
+
+    .admin-content-panel > div:nth-child(2) {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 30px !important;
+        padding: 6px;
+        border: 1px solid #e6ebf3;
+        border-radius: 15px;
+        background: #f3f6fb;
+    }
+
+        .admin-content-panel > div:nth-child(2) .admin-small-button {
+            flex: 1 1 auto;
+            min-height: 43px;
+            padding: 0 17px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            background: transparent;
+            color: #77849a;
+            font-size: 12px;
+            font-weight: 800;
+            box-shadow: none;
+            transition: all .2s ease;
+        }
+
+            .admin-content-panel > div:nth-child(2) .admin-small-button:hover {
+                transform: translateY(-1px);
+                border-color: #e0e8f5;
+                background: #fff;
+                color: #2456a6;
+                box-shadow: 0 4px 12px rgba(32, 65, 116, .06);
+            }
+
+    /* Tytuły sekcji */
+
+    .admin-content-panel h3 {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        margin: 30px 0 18px;
+        color: #1b3154;
+        font-size: 21px;
+        font-weight: 850;
+        letter-spacing: -.5px;
+    }
+
+        .admin-content-panel h3::before {
+            width: 4px;
+            height: 24px;
+            flex: 0 0 4px;
+            border-radius: 5px;
+            background: linear-gradient(180deg, #5089ef, #2856ac);
+            content: "";
+        }
+
+    /* Formularze — osobna, elegancka karta */
+
+    .admin-content-panel form {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 13px;
+        margin: 0 0 27px;
+        padding: clamp(17px, 2.5vw, 25px);
+        border: 1px solid #e1e9f5;
+        border-radius: 18px;
+        background: linear-gradient(135deg, rgba(239, 245, 255, .8), rgba(255, 255, 255, .98));
+        box-shadow: 0 6px 18px rgba(39, 68, 113, .035), inset 0 1px 0 rgba(255, 255, 255, .95);
+    }
+
+        .admin-content-panel form > div {
+            align-items: center;
+            gap: 12px !important;
+        }
+
+    /* Pola tekstowe */
+
+    .admin-content-panel .form-control {
+        width: 100%;
+        min-width: 0;
+        min-height: 49px;
+        padding: 13px 15px;
+        border: 1px solid #dce5f1;
+        border-radius: 12px;
+        outline: none;
+        background: rgba(255, 255, 255, .95);
+        color: #243754;
+        font-family: inherit;
+        font-size: 13px;
+        box-shadow: 0 2px 4px rgba(34, 58, 94, .025);
+        transition: border-color .2s ease, box-shadow .2s ease, background .2s ease, transform .2s ease;
+    }
+
+        .admin-content-panel .form-control:hover {
+            border-color: #bdcfe8;
+            background: #fff;
+        }
+
+        .admin-content-panel .form-control:focus {
+            border-color: #4c7ed4;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(64, 119, 211, .12), 0 3px 10px rgba(42, 83, 145, .06);
+        }
+
+        .admin-content-panel .form-control::placeholder {
+            color: #9aa7ba;
+            opacity: 1;
+        }
+
+    /* Przyciski formularza */
+
+    .admin-content-panel form button[type="submit"] {
+        min-height: 47px;
+        padding: 0 22px;
+        border: 1px solid #2858ad;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #3977d8, #244fa5);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 850;
+        letter-spacing: .1px;
+        white-space: nowrap;
+        box-shadow: 0 5px 12px rgba(38, 83, 164, .18), inset 0 1px 0 rgba(255, 255, 255, .15);
+        transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+    }
+
+        .admin-content-panel form button[type="submit"]:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.06);
+            box-shadow: 0 8px 18px rgba(38, 83, 164, .24);
+        }
+
+        .admin-content-panel form button[type="submit"]:active {
+            transform: translateY(0);
+        }
+
+    /* Błędy walidacji */
+
+    .admin-content-panel .validation-message {
+        display: block;
+        margin-top: -5px;
+        color: #bd3044;
+        font-size: 12px;
+        font-weight: 650;
+    }
+
+    /* Lista — każdy element jako oddzielny, lekki panel */
+
+    .admin-content-panel ul {
+        display: grid;
+        gap: 11px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+        .admin-content-panel ul li {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 9px;
+            min-width: 0;
+            margin: 0 !important;
+            padding: 15px 17px;
+            border: 1px solid #e7edf5;
+            border-radius: 14px;
+            background: #fff;
+            color: #7a879b;
+            font-size: 12px;
+            line-height: 1.6;
+            box-shadow: 0 2px 6px rgba(35, 59, 94, .018);
+            transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease, background .2s ease;
+        }
+
+            .admin-content-panel ul li:hover {
+                transform: translateY(-1px);
+                border-color: #d4e1f3;
+                background: #fcfdff;
+                box-shadow: 0 7px 18px rgba(35, 67, 115, .06);
+            }
+
+            .admin-content-panel ul li strong {
+                color: #243b60;
+                font-size: 14px;
+                font-weight: 850;
+                letter-spacing: -.15px;
+            }
+
+            /* Akcje na liście */
+
+            .admin-content-panel ul li .admin-small-button {
+                min-height: 34px;
+                padding: 0 12px;
+                border-radius: 9px;
+                font-size: 11px;
+                font-weight: 800;
+                box-shadow: none;
+                transition: all .18s ease;
+            }
+
+                .admin-content-panel ul li .admin-small-button:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 3px 9px rgba(35, 59, 94, .1);
+                }
+
+            .admin-content-panel ul li .admin-delete-button {
+                border: 1px solid #f4d5d9;
+                border-radius: 9px;
+                background: #fff4f5;
+                color: #b52b3e;
+                box-shadow: none;
+            }
+
+                .admin-content-panel ul li .admin-delete-button:hover {
+                    border-color: #e9b0b8;
+                    background: #ffe7ea;
+                    color: #941d2d;
+                }
+
+    /* Komunikaty systemowe */
+
+    .admin-content-panel p[role="status"] {
+        margin: 0 0 22px;
+        padding: 14px 17px;
+        border: 1px solid #cce8d8;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #f0faf4, #f8fdf9);
+        color: #176746;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+    }
+
+    /* Fokus klawiatury i wyłączone akcje */
+
+    .admin-content-panel button:focus-visible {
+        outline: 3px solid rgba(65, 121, 211, .28);
+        outline-offset: 3px;
+    }
+
+    .admin-content-panel button:disabled {
+        opacity: .5;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+/* Telefon i mały ekran */
+
+@media (max-width: 650px) {
+    .admin-content-panel {
+        padding: 17px;
+        border-radius: 17px;
+    }
+
+        .admin-content-panel .admin-content-panel__header {
+            padding-bottom: 19px;
+        }
+
+        .admin-content-panel > div:nth-child(2) {
+            gap: 6px;
+        }
+
+            .admin-content-panel > div:nth-child(2) .admin-small-button {
+                flex: 1 1 calc(50% - 6px);
+                padding: 0 10px;
+            }
+
+        .admin-content-panel form {
+            padding: 15px;
+            border-radius: 15px;
+        }
+
+            .admin-content-panel form button[type="submit"] {
+                width: 100%;
+            }
+
+        .admin-content-panel ul li {
+            padding: 13px;
+            gap: 8px;
+        }
+
+            .admin-content-panel ul li strong {
+                flex-basis: 100%;
+            }
+
+            .admin-content-panel ul li .admin-small-button {
+                flex: 1 1 auto;
+            }
+}
+/* ===== AKCJE: DEZAKTYWUJ / AKTYWUJ / USUŃ ===== */
+
+.admin-content-panel li {
+    gap: 14px;
+}
+
+    /* Wspólny wygląd przycisków akcji */
+    .admin-content-panel li button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-height: 38px;
+        padding: 9px 15px;
+        border: 1px solid transparent;
+        border-radius: 11px;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+        /* AKTYWUJ / DEZAKTYWUJ — niebieski styl */
+        .admin-content-panel li button:not(.admin-delete-button) {
+            color: #2457c5;
+            background: #edf4ff;
+            border-color: #d6e5ff;
+        }
+
+            .admin-content-panel li button:not(.admin-delete-button):hover {
+                color: #ffffff;
+                background: #3268df;
+                border-color: #3268df;
+                box-shadow: 0 5px 14px rgba(50, 104, 223, 0.22);
+                transform: translateY(-1px);
+            }
+
+            .admin-content-panel li button:not(.admin-delete-button):active {
+                transform: translateY(0) scale(0.98);
+            }
+
+        /* USUŃ — delikatny czerwony styl */
+        .admin-content-panel li button.admin-delete-button {
+            color: #c13745;
+            background: #fff0f1;
+            border-color: #ffdadd;
+        }
+
+            .admin-content-panel li button.admin-delete-button:hover {
+                color: #ffffff;
+                background: #d94350;
+                border-color: #d94350;
+                box-shadow: 0 5px 14px rgba(217, 67, 80, 0.22);
+                transform: translateY(-1px);
+            }
+
+            .admin-content-panel li button.admin-delete-button:active {
+                transform: translateY(0) scale(0.98);
+            }
+
+        /* Widoczny fokus przy obsłudze klawiaturą */
+        .admin-content-panel li button:focus-visible {
+            outline: 3px solid rgba(59, 130, 246, 0.3);
+            outline-offset: 3px;
+        }
+
+    /* Przyciski nie mogą się ściskać */
+    .admin-content-panel li button {
+        flex-shrink: 0;
+    }
+
+/* Układ na mniejszych ekranach */
+@media (max-width: 650px) {
+    .admin-content-panel li {
+        flex-wrap: wrap;
+    }
+
+        .admin-content-panel li button {
+            flex: 1;
+            min-width: 110px;
+        }
+}
+
+/* ===== PRZYCISKI FORMULARZY I EDYCJI ===== */
+
+/* Wspólny styl */
+.admin-content-panel button,
+.admin-content-panel input[type="submit"] {
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+/* DODAJ / ZAPISZ */
+.admin-content-panel form button,
+.admin-content-panel form input[type="submit"] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 43px;
+    padding: 11px 20px;
+    color: #fff;
+    background: linear-gradient(135deg, #3975ed, #2856c7);
+    border: 1px solid #2f63d8;
+    border-radius: 12px;
+    font-size: 14px;
+    box-shadow: 0 4px 10px rgba(47, 99, 216, 0.16);
+}
+
+    .admin-content-panel form button:hover,
+    .admin-content-panel form input[type="submit"]:hover {
+        background: linear-gradient(135deg, #285fda, #1f46aa);
+        box-shadow: 0 7px 16px rgba(47, 99, 216, 0.25);
+        transform: translateY(-2px);
+    }
+
+    .admin-content-panel form button:active,
+    .admin-content-panel form input[type="submit"]:active {
+        transform: scale(0.98);
+    }
+
+/* EDYTUJ */
+.admin-content-panel .admin-edit-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 38px;
+    padding: 9px 15px;
+    color: #6941c6;
+    background: #f4f0ff;
+    border: 1px solid #e4d9ff;
+    border-radius: 11px;
+    font-size: 13px;
+}
+
+    .admin-content-panel .admin-edit-button:hover {
+        color: #fff;
+        background: #7950d8;
+        border-color: #7950d8;
+        box-shadow: 0 5px 14px rgba(121, 80, 216, 0.22);
+        transform: translateY(-1px);
+    }
+
+/* ANULUJ / WRÓĆ */
+.admin-content-panel .admin-cancel-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 10px 17px;
+    color: #475467;
+    background: #f2f4f7;
+    border: 1px solid #e0e4e9;
+    border-radius: 11px;
+    font-size: 13px;
+}
+
+    .admin-content-panel .admin-cancel-button:hover {
+        color: #1d2939;
+        background: #e4e7ec;
+        border-color: #cbd0d8;
+    }
+
+/* Fokus klawiatury */
+.admin-content-panel button:focus-visible,
+.admin-content-panel input[type="submit"]:focus-visible {
+    outline: 3px solid rgba(59, 130, 246, 0.3);
+    outline-offset: 3px;
+}
+
+/* Wyłączony przycisk */
+.admin-content-panel button:disabled,
+.admin-content-panel input[type="submit"]:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+/* ===== DANE SZKOŁY — PRZYCISKI I FORMULARZE ===== */
+
+.admin-content-panel .school-data-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 22px 0;
+    padding: 6px;
+    background: #f4f7fc;
+    border: 1px solid #e6ebf3;
+    border-radius: 16px;
+}
+
+.admin-content-panel .school-data-tab {
+    flex: 1;
+    min-width: 115px;
+    padding: 12px 16px;
+    border: 1px solid transparent;
+    border-radius: 11px;
+    background: transparent;
+    color: #536179;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+    .admin-content-panel .school-data-tab span {
+        margin-right: 7px;
+        color: #8794aa;
+        font-size: 11px;
+    }
+
+    .admin-content-panel .school-data-tab:hover {
+        background: #e9effb;
+        color: #2457c5;
+    }
+
+    .admin-content-panel .school-data-tab.active {
+        color: #2457c5;
+        background: white;
+        border-color: #dce6f7;
+        box-shadow: 0 3px 10px rgba(35, 58, 100, 0.08);
+    }
+
+.admin-content-panel .school-data-section h3 {
+    margin: 24px 0 16px;
+    color: #172b4d;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.admin-content-panel .school-data-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 17px;
+}
+
+.admin-content-panel .school-data-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.admin-content-panel .school-data-field-full {
+    grid-column: 1 / -1;
+}
+
+.admin-content-panel .school-data-field label {
+    color: #344563;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-content-panel .school-data-field .form-control {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 46px;
+    padding: 12px 14px;
+    border: 1px solid #d9e1ed;
+    border-radius: 12px;
+    background: #fff;
+    color: #172b4d;
+    font: inherit;
+    font-size: 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .admin-content-panel .school-data-field .form-control:focus {
+        outline: none;
+        border-color: #5685ee;
+        box-shadow: 0 0 0 4px rgba(65, 119, 235, 0.12);
+    }
+
+.admin-content-panel .school-data-form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.admin-content-panel .admin-primary-button,
+.admin-content-panel .admin-edit-button,
+.admin-content-panel .admin-cancel-button,
+.admin-content-panel .admin-status-button,
+.admin-content-panel .admin-delete-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 39px;
+    padding: 10px 15px;
+    border: 1px solid transparent;
+    border-radius: 11px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 750;
+    line-height: 1.1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.admin-content-panel .admin-primary-button {
+    min-height: 44px;
+    padding: 12px 19px;
+    color: white;
+    background: linear-gradient(135deg, #3975ed, #2856c7);
+    box-shadow: 0 4px 11px rgba(47, 99, 216, 0.17);
+}
+
+    .admin-content-panel .admin-primary-button:hover {
+        background: linear-gradient(135deg, #285fda, #1f46aa);
+        box-shadow: 0 7px 16px rgba(47, 99, 216, 0.24);
+        transform: translateY(-1px);
+    }
+
+.admin-content-panel .admin-edit-button {
+    color: #6941c6;
+    background: #f4f0ff;
+    border-color: #e4d9ff;
+}
+
+    .admin-content-panel .admin-edit-button:hover {
+        color: white;
+        background: #7950d8;
+        border-color: #7950d8;
+        box-shadow: 0 4px 12px rgba(121, 80, 216, 0.2);
+        transform: translateY(-1px);
+    }
+
+.admin-content-panel .admin-cancel-button {
+    color: #475467;
+    background: #f2f4f7;
+    border-color: #e0e4e9;
+}
+
+    .admin-content-panel .admin-cancel-button:hover {
+        background: #e4e7ec;
+        border-color: #cbd0d8;
+    }
+
+.admin-content-panel .admin-status-button {
+    color: #2457c5;
+    background: #edf4ff;
+    border-color: #d6e5ff;
+}
+
+    .admin-content-panel .admin-status-button:hover {
+        color: white;
+        background: #3268df;
+        border-color: #3268df;
+        box-shadow: 0 4px 12px rgba(50, 104, 223, 0.2);
+        transform: translateY(-1px);
+    }
+
+.admin-content-panel .admin-delete-button {
+    color: #c13745;
+    background: #fff0f1;
+    border-color: #ffdadd;
+}
+
+    .admin-content-panel .admin-delete-button:hover {
+        color: white;
+        background: #d94350;
+        border-color: #d94350;
+        box-shadow: 0 4px 12px rgba(217, 67, 80, 0.2);
+        transform: translateY(-1px);
+    }
+
+.admin-content-panel .school-data-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.admin-content-panel .admin-record-list {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+    .admin-content-panel .admin-record-list > li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px;
+        border: 1px solid #e7ecf4;
+        border-radius: 15px;
+        background: linear-gradient(120deg, #ffffff, #fbfcff);
+        box-shadow: 0 2px 6px rgba(24, 45, 82, 0.025);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .admin-content-panel .admin-record-list > li:hover {
+            border-color: #cfddf5;
+            box-shadow: 0 5px 16px rgba(24, 45, 82, 0.06);
+        }
+
+.admin-content-panel .school-data-record {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    min-width: 0;
+}
+
+    .admin-content-panel .school-data-record strong {
+        color: #172b4d;
+        font-size: 15px;
+        overflow-wrap: anywhere;
+    }
+
+    .admin-content-panel .school-data-record > span:not(.school-data-status) {
+        color: #758198;
+        font-size: 12px;
+        overflow-wrap: anywhere;
+    }
+
+.admin-content-panel .school-data-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+    .admin-content-panel .school-data-status.is-active {
+        color: #167647;
+        background: #e9f9ef;
+    }
+
+    .admin-content-panel .school-data-status.is-inactive {
+        color: #667085;
+        background: #eef0f4;
+    }
+
+.admin-content-panel .school-data-list-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 30px !important;
+}
+
+    .admin-content-panel .school-data-list-heading > span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 26px;
+        height: 26px;
+        padding: 0 7px;
+        border-radius: 8px;
+        color: #2856c7;
+        background: #edf4ff;
+        font-size: 12px;
+    }
+
+.admin-content-panel .school-data-empty {
+    margin: 12px 0;
+    padding: 22px;
+    border: 1px dashed #d6dfed;
+    border-radius: 14px;
+    color: #748198;
+    background: #fafcff;
+    text-align: center;
+}
+
+.admin-content-panel .school-data-message {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 15px 0;
+    padding: 13px 15px;
+    border: 1px solid;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+    .admin-content-panel .school-data-message > span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 23px;
+        width: 23px;
+        height: 23px;
+        border-radius: 50%;
+        font-weight: 800;
+    }
+
+    .admin-content-panel .school-data-message.success {
+        color: #176b43;
+        background: #effbf3;
+        border-color: #c9efd6;
+    }
+
+        .admin-content-panel .school-data-message.success > span {
+            color: white;
+            background: #26965b;
+        }
+
+    .admin-content-panel .school-data-message.error {
+        color: #a52d3a;
+        background: #fff2f2;
+        border-color: #ffd4d7;
+    }
+
+        .admin-content-panel .school-data-message.error > span {
+            color: white;
+            background: #d94350;
+        }
+
+.admin-content-panel .validation-message,
+.admin-content-panel .validation-summary-errors {
+    color: #c13745;
+    font-size: 12px;
+}
+
+    .admin-content-panel .validation-summary-errors ul {
+        margin: 8px 0;
+        padding-left: 20px;
+    }
+
+.admin-content-panel button:focus-visible {
+    outline: 3px solid rgba(59, 130, 246, 0.3);
+    outline-offset: 3px;
+}
+
+.admin-content-panel button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+@media (max-width: 800px) {
+    .admin-content-panel .admin-record-list > li {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .admin-content-panel .school-data-actions {
+        justify-content: flex-start;
+        width: 100%;
+    }
+}
+
+@media (max-width: 560px) {
+    .admin-content-panel .school-data-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-content-panel .school-data-field-full {
+        grid-column: auto;
+    }
+
+    .admin-content-panel .school-data-tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-content-panel .school-data-tab {
+        min-width: 0;
+        padding: 11px 8px;
+    }
+
+    .admin-content-panel .school-data-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+        .admin-content-panel .school-data-actions button {
+            width: 100%;
+            white-space: normal;
+        }
+
+        .admin-content-panel .school-data-actions .admin-delete-button {
+            grid-column: 1 / -1;
+        }
+}
+
+/* ===== PRZYCISKI AKCJI W TABELACH ADMINA ===== */
+
+/* Usuń ciężki, granatowy wygląd */
+.admin-page table td button,
+.admin-page table td .btn,
+.admin-page table td a.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 35px;
+    padding: 8px 13px;
+    margin: 0 3px 0 0;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    box-shadow: none;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+    /* Edytuj — fioletowy */
+    .admin-page table td button:has-text("Edytuj"),
+    .admin-page table td .edit-button {
+        color: #6941c6;
+        background: #f3efff;
+        border-color: #e3d8ff;
+    }
+
+/* Ukryj / Pokaż — neutralny */
+.admin-page table td .hide-button,
+.admin-page table td .show-button {
+    color: #475467;
+    background: #f2f4f7;
+    border-color: #e0e4e9;
+}
+
+/* Usuń — czerwony */
+.admin-page table td .delete-button,
+.admin-page table td button.danger {
+    color: #c13745;
+    background: #fff0f1;
+    border-color: #ffdadd;
+}
+
+/* Delikatne efekty po najechaniu */
+.admin-page table td .edit-button:hover {
+    color: #fff;
+    background: #7950d8;
+    border-color: #7950d8;
+    transform: translateY(-1px);
+}
+
+.admin-page table td .hide-button:hover,
+.admin-page table td .show-button:hover {
+    color: #344054;
+    background: #e4e7ec;
+    border-color: #cbd0d8;
+    transform: translateY(-1px);
+}
+
+.admin-page table td .delete-button:hover,
+.admin-page table td button.danger:hover {
+    color: #fff;
+    background: #d94350;
+    border-color: #d94350;
+    transform: translateY(-1px);
+}
+
+/* Dostępność klawiaturą */
+.admin-page table td button:focus-visible {
+    outline: 3px solid #c7d7fe;
+    outline-offset: 2px;
+}
+
+/* Równe odstępy między przyciskami */
+.admin-page table td:last-child {
+    white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+    .admin-page table td:last-child {
+        white-space: normal;
+    }
+
+    .admin-page table td button,
+    .admin-page table td .btn {
+        margin-bottom: 5px;
+    }
+}
+
+/* ===== NOWA KOLORYSTYKA PRZYCISKÓW ZASTĘPSTW ===== */
+
+/* Wspólny wygląd */
+.admin-page table td button,
+.admin-page table td .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    padding: 9px 14px;
+    margin: 0 4px 4px 0;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    box-shadow: none;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 750;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+    /* EDYTUJ — niebieski */
+    .admin-page table td .edit-button,
+    .admin-page table td button.edit-button {
+        color: #2457c5;
+        background: #eaf1ff;
+        border-color: #ccdcff;
+    }
+
+        .admin-page table td .edit-button:hover,
+        .admin-page table td button.edit-button:hover {
+            color: #fff;
+            background: #3268df;
+            border-color: #3268df;
+            box-shadow: 0 4px 10px rgba(50, 104, 223, 0.2);
+            transform: translateY(-2px);
+        }
+
+/* UKRYJ / POKAŻ — bursztynowy */
+.admin-page table td .hide-button,
+.admin-page table td .show-button {
+    color: #9a5b08;
+    background: #fff5dc;
+    border-color: #ffe3a3;
+}
+
+    .admin-page table td .hide-button:hover,
+    .admin-page table td .show-button:hover {
+        color: #fff;
+        background: #d99516;
+        border-color: #d99516;
+        box-shadow: 0 4px 10px rgba(217, 149, 22, 0.2);
+        transform: translateY(-2px);
+    }
+
+/* USUŃ — czerwony */
+.admin-page table td .delete-button,
+.admin-page table td button.danger {
+    color: #c13745;
+    background: #fff0f1;
+    border-color: #ffd2d6;
+}
+
+    .admin-page table td .delete-button:hover,
+    .admin-page table td button.danger:hover {
+        color: #fff;
+        background: #d94350;
+        border-color: #d94350;
+        box-shadow: 0 4px 10px rgba(217, 67, 80, 0.2);
+        transform: translateY(-2px);
+    }
+
+/* Kliknięcie */
+.admin-page table td button:active,
+.admin-page table td .btn:active {
+    transform: scale(0.97);
+}
+
+/* Fokus klawiatury */
+.admin-page table td button:focus-visible {
+    outline: 3px solid #c7d7fe;
+    outline-offset: 2px;
+}
+
+/* Telefon */
+@media (max-width: 700px) {
+    .admin-page table td button,
+    .admin-page table td .btn {
+        margin-bottom: 5px;
+    }
+}
